@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wakirim Client</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-[#f4f4f5] font-sans text-[#111111] antialiased">
+  <div class="flex">
+    <!-- Sidebar - Sticky on desktop -->
+    <div class="sticky top-0 h-screen w-[280px] flex-shrink-0">
+      <div data-sidebar-src="/page/client/sidebar.html"></div>
+    </div>
+
+    <!-- Main Content - Scrollable -->
+    <main id="page-content" class="min-w-0 flex-1 p-5 md:p-9">
+      <!-- Content loaded dynamically -->
+    </main>
+  </div>
+
+  <script>
+    const sidebarMount = document.querySelector("[data-sidebar-src]");
+    const pageContent = document.getElementById("page-content");
+    const pages = ["dashboard", "scrape", "history", "berlangganan", "account"];
+
+    // Fetch sidebar
+    if (sidebarMount) {
+      fetch(sidebarMount.dataset.sidebarSrc)
+        .then((response) => {
+          if (!response.ok) throw new Error("Sidebar not found");
+          return response.text();
+        })
+        .then((html) => {
+          sidebarMount.innerHTML = html;
+          initNavigation();
+          loadPage(getInitialPage());
+        })
+        .catch(() => {
+          sidebarMount.innerHTML = "";
+        });
+    }
+
+    function getInitialPage() {
+      const hashPage = window.location.hash.substring(1);
+      const migratedHashPage = hashPage === "config"
+        ? "scrape"
+        : (hashPage === "system-info" ? "berlangganan" : hashPage);
+      if (pages.includes(migratedHashPage)) {
+        window.history.replaceState({}, "", getPageUrl(migratedHashPage));
+        return migratedHashPage;
+      }
+
+      const page = new URLSearchParams(window.location.search).get("page");
+      const migratedPage = page === "system-info" ? "berlangganan" : page;
+      return pages.includes(migratedPage) ? migratedPage : "dashboard";
+    }
+
+    function getPageUrl(pageName) {
+      return pageName === "dashboard" ? "/dashboard" : `/dashboard?page=${encodeURIComponent(pageName)}`;
+    }
+
+    function setActiveNavigation(targetPage) {
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        if (btn.dataset.page === targetPage) {
+          btn.classList.add("border-[#111111]", "bg-[#111111]", "text-white");
+          btn.classList.remove("border-transparent", "text-[#737373]", "hover:bg-[#f5f5f5]");
+          const iconSpan = btn.querySelector("span:first-child");
+          if (iconSpan) {
+            iconSpan.classList.add("bg-white", "text-[#111111]");
+            iconSpan.classList.remove("border-[#e5e7eb]", "bg-[#fafafa]", "text-[#737373]");
+          }
+        } else {
+          btn.classList.remove("border-[#111111]", "bg-[#111111]", "text-white");
+          btn.classList.add("border-transparent", "text-[#737373]", "hover:bg-[#f5f5f5]");
+          const iconSpan = btn.querySelector("span:first-child");
+          if (iconSpan) {
+            iconSpan.classList.remove("bg-white", "text-[#111111]");
+            iconSpan.classList.add("border-[#e5e7eb]", "bg-[#fafafa]", "text-[#737373]");
+          }
+        }
+      });
+    }
+
+    function loadPage(pageName) {
+      const templatePageName = pageName === "berlangganan" ? "system-info" : pageName;
+      fetch(`/page/client/page-${templatePageName}.html`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Page not found");
+          return response.text();
+        })
+        .then((html) => {
+          pageContent.innerHTML = html;
+          setActiveNavigation(pageName);
+          initPage(pageName);
+        })
+        .catch(() => {
+          pageContent.innerHTML = "<p class='rounded-lg border border-[#e5e7eb] bg-white p-4 text-sm font-medium text-[#111111]'>Page not found</p>";
+        });
+    }
+
+    function initNavigation() {
+      const navButtons = document.querySelectorAll(".nav-btn");
+
+      navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetPage = btn.dataset.page;
+          if (!pages.includes(targetPage)) return;
+
+          // Load page content
+          loadPage(targetPage);
+
+          // Update URL without hash
+          window.history.pushState({}, "", getPageUrl(targetPage));
+        });
+      });
+    }
+
+    function initPage(pageName) {
+      if (pageName === "scrape") {
+        initScrapePage();
+        return;
+      }
+
+      if (pageName === "history") {
+        initHistoryPage();
+        return;
+      }
+
+      if (pageName === "account") {
+        initAccountPage();
+        return;
+      }
+
+      if (pageName === "berlangganan") {
+        initBerlanggananPage();
+      }
+    }
+
+    function initBerlanggananPage() {
+      const durationInputs = pageContent.querySelectorAll('input[name="duration-plan"]');
+      const totalPriceText = pageContent.querySelector("#subscription-total-price");
+
+      if (!durationInputs.length || !totalPriceText) return;
+
+      function formatRupiah(number) {
+        return `Rp${Number(number || 0).toLocaleString("id-ID")}`;
+      }
+
+      function updateTotalFromSelection() {
+        const selected = Array.from(durationInputs).find((input) => input.checked);
+        const price = Number(selected?.dataset.price || 0);
+        totalPriceText.textContent = formatRupiah(price);
+      }
+
+      durationInputs.forEach((input) => {
+        input.addEventListener("change", updateTotalFromSelection);
+      });
+
+      updateTotalFromSelection();
+    }
+
+    function initAccountPage() {
+      const passwordText = pageContent.querySelector("[data-account-password]");
+      const toggleButton = pageContent.querySelector("[data-toggle-account-password]");
+      const eyeOpen = pageContent.querySelector("[data-eye-open]");
+      const eyeClosed = pageContent.querySelector("[data-eye-closed]");
+      const logoutButton = pageContent.querySelector("[data-client-logout]");
+      const deleteAccountButton = pageContent.querySelector("[data-client-delete-account]");
+      const usernameText = pageContent.querySelector("#account-username");
+      const registeredAtText = pageContent.querySelector("#account-registered-at");
+      const expiredAtText = pageContent.querySelector("#account-expired-at");
+      const passwordNoteText = pageContent.querySelector("#account-password-note");
+      const complaintEmailInput = pageContent.querySelector("#complaint-email-input");
+      const complaintTitleInput = pageContent.querySelector("#complaint-title-input");
+      const complaintDescriptionInput = pageContent.querySelector("#complaint-description-input");
+      const complaintStatus = pageContent.querySelector("#complaint-form-status");
+      const sendComplaintButton = pageContent.querySelector("[data-send-client-complaint]");
+
+      async function loadAccountProfile() {
+        try {
+          const response = await fetch("/oauth/me", {
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success || !result.data) {
+            throw new Error(result.message || "Gagal mengambil data akun.");
+          }
+
+          const data = result.data;
+          if (usernameText) usernameText.textContent = data.username || "-";
+          if (registeredAtText) registeredAtText.textContent = data.tanggal_daftar || "-";
+          if (expiredAtText) expiredAtText.textContent = data.tanggal_berakhir || "-";
+          if (complaintEmailInput) complaintEmailInput.value = data.email || "";
+
+          if (passwordText) {
+            passwordText.dataset.passwordValue = "Tersimpan terenkripsi";
+            passwordText.textContent = "********";
+            passwordText.dataset.visible = "false";
+          }
+
+          if (passwordNoteText) {
+            passwordNoteText.textContent = "Password tidak dapat di tampilkan, silahkan cek email untuk melihat password.";
+          }
+        } catch (_) {
+          if (usernameText) usernameText.textContent = "-";
+          if (registeredAtText) registeredAtText.textContent = "-";
+          if (expiredAtText) expiredAtText.textContent = "-";
+        }
+      }
+
+      toggleButton?.addEventListener("click", () => {
+        if (!passwordText) return;
+
+        const isVisible = passwordText.dataset.visible === "true";
+        passwordText.textContent = isVisible ? "********" : (passwordText.dataset.passwordValue || "");
+        passwordText.dataset.visible = isVisible ? "false" : "true";
+        toggleButton.setAttribute("aria-label", isVisible ? "Lihat password" : "Sembunyikan password");
+        eyeOpen?.classList.toggle("hidden", !isVisible);
+        eyeClosed?.classList.toggle("hidden", isVisible);
+      });
+
+      function setComplaintStatus(message, tone) {
+        if (!complaintStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-[#111111] bg-white text-[#111111]"
+          : "border-[#e5e7eb] bg-[#fafafa] text-[#525252]";
+
+        complaintStatus.className = `rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        complaintStatus.textContent = message;
+      }
+
+      sendComplaintButton?.addEventListener("click", () => {
+        const email = complaintEmailInput?.value.trim() || "";
+        const title = complaintTitleInput?.value.trim() || "";
+        const description = complaintDescriptionInput?.value.trim() || "";
+
+        if (!email || !title || !description) {
+          setComplaintStatus("Lengkapi email, judul pengaduan, dan deskripsi pengaduan.", "error");
+          return;
+        }
+
+        setComplaintStatus("Pengaduan berhasil dikirim ke admin.", "neutral");
+        if (complaintTitleInput) complaintTitleInput.value = "";
+        if (complaintDescriptionInput) complaintDescriptionInput.value = "";
+      });
+
+      logoutButton?.addEventListener("click", async () => {
+        logoutButton.disabled = true;
+        try {
+          await fetch("/oauth/logout", {
+            method: "POST",
+            credentials: "same-origin",
+          });
+        } finally {
+          window.location.href = "/login";
+        }
+      });
+
+      deleteAccountButton?.addEventListener("click", async () => {
+        const confirmed = window.confirm("Hapus akun ini? Tindakan ini akan menghapus data akun client secara permanen.");
+        if (!confirmed) return;
+
+        const originalLabel = deleteAccountButton.textContent;
+        deleteAccountButton.disabled = true;
+        deleteAccountButton.textContent = "Menghapus...";
+
+        try {
+          const response = await fetch("/oauth/delete-account", {
+            method: "POST",
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal menghapus akun.");
+          }
+
+          window.alert("Akun berhasil dihapus.");
+          window.location.href = "/login";
+        } catch (error) {
+          window.alert(error.message || "Gagal menghapus akun.");
+          deleteAccountButton.disabled = false;
+          deleteAccountButton.textContent = originalLabel || "Hapus Akun";
+        }
+      });
+
+      loadAccountProfile();
+    }
+
+    function initScrapePage() {
+      const groupInputs = pageContent.querySelectorAll('input[name="groups"]');
+      const selectedCount = pageContent.querySelector("#scrape-selected-count");
+      const memberCount = pageContent.querySelector("#scrape-member-count");
+      const manualRows = pageContent.querySelector("#manual-contact-rows");
+      const savedContactCount = pageContent.querySelector("#saved-contact-count");
+      const contactDetailCard = pageContent.querySelector("#saved-contact-detail-card");
+      const contactDetailTitle = pageContent.querySelector("#saved-contact-detail-title");
+      const contactDetailList = pageContent.querySelector("#saved-contact-detail-list");
+
+      function updateSummary() {
+        const selectedGroups = Array.from(groupInputs).filter((input) => input.checked);
+        const totalMembers = selectedGroups.reduce((total, input) => {
+          return total + Number(input.dataset.members || 0);
+        }, 0);
+
+        if (selectedCount) selectedCount.textContent = selectedGroups.length;
+        if (memberCount) memberCount.textContent = totalMembers.toLocaleString("en-US");
+      }
+
+      function updateSavedContactCount() {
+        const totalFiles = pageContent.querySelectorAll("[data-saved-contact]").length;
+        if (savedContactCount) savedContactCount.textContent = `${totalFiles} file contact`;
+      }
+
+      function escapeText(value) {
+        return value.replace(/[&<>"']/g, (char) => {
+          const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\"": "&quot;",
+            "'": "&#39;",
+          };
+          return entities[char];
+        });
+      }
+
+      function showContactDetail(item) {
+        if (!contactDetailCard || !contactDetailTitle || !contactDetailList) return;
+
+        const fileName = item.querySelector("p")?.textContent?.trim() || "contact.csv";
+        const contacts = (item.dataset.contactDetail || "")
+          .split(";")
+          .filter(Boolean)
+          .map((contact) => {
+            const [phone, name] = contact.split("|");
+            return {
+              phone: phone || "-",
+              name: name || "-",
+            };
+          });
+
+        contactDetailTitle.textContent = fileName;
+        contactDetailList.innerHTML = contacts.map((contact) => `
+          <div class="flex items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-[#111111]">${escapeText(contact.phone)}</p>
+              <p class="mt-0.5 truncate text-xs text-[#737373]">${escapeText(contact.name)}</p>
+            </div>
+            <span class="shrink-0 rounded border border-[#d4d4d4] bg-white px-2 py-1 text-xs font-medium text-[#525252]">Contact</span>
+          </div>
+        `).join("");
+        contactDetailCard.classList.remove("hidden");
+      }
+
+      function hideContactDetail() {
+        contactDetailCard?.classList.add("hidden");
+      }
+
+      function getManualContactRow() {
+        return `
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px]" data-manual-contact-row>
+            <label class="block">
+              <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nomor telepon</span>
+              <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="tel" placeholder="6281234567890">
+            </label>
+            <label class="block">
+              <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama opsional</span>
+              <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="Nama contact">
+            </label>
+            <button class="mt-0 flex h-11 w-full items-center justify-center rounded-lg border border-[#d4d4d4] bg-white text-lg font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white sm:mt-[26px]" type="button" data-remove-manual-contact aria-label="Hapus contact manual">
+              -
+            </button>
+          </div>
+        `;
+      }
+
+      groupInputs.forEach((input) => {
+        input.addEventListener("change", updateSummary);
+      });
+
+      if (manualRows) {
+        manualRows.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+
+          if (target.closest("[data-add-manual-contact]")) {
+            manualRows.insertAdjacentHTML("beforeend", getManualContactRow());
+            return;
+          }
+
+          const removeButton = target.closest("[data-remove-manual-contact]");
+          if (removeButton) {
+            removeButton.closest("[data-manual-contact-row]")?.remove();
+          }
+        });
+      }
+
+      pageContent.querySelectorAll("[data-delete-saved-contact]").forEach((button) => {
+        button.addEventListener("click", () => {
+          button.closest("[data-saved-contact]")?.remove();
+          hideContactDetail();
+          updateSavedContactCount();
+        });
+      });
+
+      pageContent.querySelectorAll("[data-show-saved-contact-detail]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = button.closest("[data-saved-contact]");
+          if (item) showContactDetail(item);
+        });
+      });
+
+      pageContent.querySelector("[data-close-contact-detail]")?.addEventListener("click", hideContactDetail);
+
+      updateSummary();
+      updateSavedContactCount();
+    }
+
+    function initHistoryPage() {
+      const totalCount = pageContent.querySelector("#history-total-count");
+      const successTotal = pageContent.querySelector("#history-success-total");
+      const failedTotal = pageContent.querySelector("#history-failed-total");
+      const averageRate = pageContent.querySelector("#history-average-rate");
+
+      function getItems() {
+        return Array.from(pageContent.querySelectorAll("[data-history-item]"));
+      }
+
+      function updateHistorySummary() {
+        const items = getItems();
+        const totalSuccess = items.reduce((total, item) => total + Number(item.dataset.success || 0), 0);
+        const totalFailed = items.reduce((total, item) => total + Number(item.dataset.failed || 0), 0);
+        const percentage = totalSuccess + totalFailed > 0
+          ? (totalSuccess / (totalSuccess + totalFailed)) * 100
+          : 0;
+
+        if (totalCount) totalCount.textContent = items.length;
+        if (successTotal) successTotal.textContent = totalSuccess.toLocaleString("en-US");
+        if (failedTotal) failedTotal.textContent = totalFailed.toLocaleString("en-US");
+        if (averageRate) averageRate.textContent = `${percentage.toFixed(1)}%`;
+      }
+
+      pageContent.querySelectorAll("[data-delete-history]").forEach((button) => {
+        button.addEventListener("click", () => {
+          button.closest("[data-history-item]")?.remove();
+          updateHistorySummary();
+        });
+      });
+
+      updateHistorySummary();
+    }
+
+    // Handle browser back/forward
+    window.addEventListener("popstate", () => {
+      loadPage(getInitialPage());
+    });
+  </script>
+</body>
+</html>

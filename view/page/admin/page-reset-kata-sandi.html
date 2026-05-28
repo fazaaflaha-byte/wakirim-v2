@@ -1,0 +1,172 @@
+<header class="mb-6 flex flex-col gap-4 border-b border-[#e5e7eb] pb-6 md:flex-row md:items-end md:justify-between">
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Admin Panel</p>
+    <h1 class="m-0 text-[28px] font-semibold leading-tight text-[#111111]">Reset Kata Sandi</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">Kelola permintaan lupa password dari client dan kirim password baru via email.</p>
+  </div>
+  <span id="reset-request-total" class="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#404040]">4 request</span>
+</header>
+
+<section id="send-new-password-card" class="mb-4 hidden rounded-lg border border-[#111111] bg-white p-5" aria-label="Kirim password baru">
+  <div class="mb-5 flex flex-col gap-3 border-b border-[#e5e7eb] pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#737373]">Ubah Kata Sandi</p>
+      <h2 class="mt-1 text-[18px] font-semibold text-[#111111]">Kirim Password Baru</h2>
+      <p class="mt-1 text-sm text-[#737373]">Detail akun otomatis muncul setelah user dicek dari list permintaan.</p>
+    </div>
+    <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-close-new-password>
+      Tutup
+    </button>
+  </div>
+
+  <div class="grid gap-3 lg:grid-cols-[1fr_1fr_160px_1fr_240px] lg:items-end">
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Username</span>
+      <input id="new-password-username" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="text" readonly>
+    </label>
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Email</span>
+      <input id="new-password-email" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="email" readonly>
+    </label>
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Tanggal Daftar</span>
+      <input id="new-password-registered" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="text" readonly>
+    </label>
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Password Baru</span>
+      <input id="new-password-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition-colors placeholder:text-[#a3a3a3] focus:border-[#111111]" type="text" placeholder="Masukkan password baru">
+    </label>
+    <button class="rounded-lg bg-[#111111] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-send-new-password>
+      Kirim Password Baru via Email
+    </button>
+  </div>
+
+  <p id="new-password-status" class="mt-3 hidden rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-sm font-medium text-[#525252]"></p>
+</section>
+
+<section class="rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Permintaan reset kata sandi">
+  <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">Permintaan Reset Kata Sandi</h2>
+      <p class="mt-1 text-sm text-[#737373]">Pilih akun untuk mengubah kata sandi dan mengirim password baru via email.</p>
+    </div>
+    <label class="block w-full lg:max-w-xs">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Cari Request</span>
+      <input id="search-reset-request" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm font-medium text-[#111111] outline-none transition-colors placeholder:text-[#a3a3a3] focus:border-[#111111]" type="text" placeholder="Username atau email">
+    </label>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-[#e5e7eb]">
+    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] lg:grid lg:grid-cols-[minmax(160px,1fr)_220px_170px_150px_130px]">
+      <span>Username</span>
+      <span>Email</span>
+      <span>Waktu Request</span>
+      <span>Status </span>
+      <span class="text-right">Aksi</span>
+    </div>
+
+    <div class="divide-y divide-[#e5e7eb]">
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(160px,1fr)_220px_170px_150px_130px] lg:items-center" data-reset-row data-username="client_wakirim" data-email="client@email.com" data-registered="04 Mei 2026">
+        <p class="font-semibold text-[#111111]">client_wakirim</p>
+        <p class="truncate text-sm text-[#525252]" title="client@email.com">client@email.com</p>
+        <p class="text-sm text-[#525252]">22 Mei 2026, 11:02 WIB</p>
+        <span class="w-fit rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#737373]" data-password-change-status>Belum diubah</span>
+        <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] lg:justify-self-end" type="button" data-change-request-password>Ubah Kata Sandi</button>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(160px,1fr)_220px_170px_150px_130px] lg:items-center" data-reset-row data-username="reseller_01" data-email="reseller@email.com" data-registered="10 Mei 2026">
+        <p class="font-semibold text-[#111111]">reseller_01</p>
+        <p class="truncate text-sm text-[#525252]" title="reseller@email.com">reseller@email.com</p>
+        <p class="text-sm text-[#525252]">22 Mei 2026, 08:31 WIB</p>
+        <span class="w-fit rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#737373]" data-password-change-status>Belum diubah</span>
+        <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] lg:justify-self-end" type="button" data-change-request-password>Ubah Kata Sandi</button>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(160px,1fr)_220px_170px_150px_130px] lg:items-center" data-reset-row data-username="user_techcorp" data-email="techcorp@techcorp.id" data-registered="18 April 2026">
+        <p class="font-semibold text-[#111111]">user_techcorp</p>
+        <p class="truncate text-sm text-[#525252]" title="techcorp@techcorp.id">techcorp@techcorp.id</p>
+        <p class="text-sm text-[#525252]">21 Mei 2026, 21:12 WIB</p>
+        <span class="w-fit rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#737373]" data-password-change-status>Belum diubah</span>
+        <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] lg:justify-self-end" type="button" data-change-request-password>Ubah Kata Sandi</button>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(160px,1fr)_220px_170px_150px_130px] lg:items-center" data-reset-row data-username="admin_digital" data-email="admin@digital.co.id" data-registered="02 April 2026">
+        <p class="font-semibold text-[#111111]">admin_digital</p>
+        <p class="truncate text-sm text-[#525252]" title="admin@digital.co.id">admin@digital.co.id</p>
+        <p class="text-sm text-[#525252]">21 Mei 2026, 16:40 WIB</p>
+        <span class="w-fit rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#737373]" data-password-change-status>Belum diubah</span>
+        <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] lg:justify-self-end" type="button" data-change-request-password>Ubah Kata Sandi</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mt-4 rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Permintaan upgrade">
+  <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">Permintaan Upgrade</h2>
+      <p class="mt-1 text-sm text-[#737373]">Daftar permintaan upgrade paket user yang menunggu pengecekan bukti pembayaran.</p>
+    </div>
+    <span class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1 text-xs font-medium text-[#525252]">UI Preview</span>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-[#e5e7eb]">
+    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] lg:grid lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center">
+      <span>Username</span>
+      <span>Email</span>
+      <span>Nama Plan</span>
+      <span>Waktu Request</span>
+      <span>Bukti Pembayaran</span>
+      <span>Periode Baru</span>
+      <span>Status</span>
+      <span class="text-right">Aksi</span>
+    </div>
+
+    <div id="upgrade-request-list" class="divide-y divide-[#e5e7eb]">
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center" data-upgrade-request-row data-username="reseller_01">
+        <p class="font-semibold text-[#111111]">reseller_01</p>
+        <p class="truncate text-sm text-[#525252]" title="reseller@email.com">reseller@email.com</p>
+        <p class="text-sm font-semibold text-[#111111]">Growth</p>
+        <p class="text-sm text-[#525252]">22 Mei 2026, 13:45 WIB</p>
+        <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-upgrade-proof="reseller_01">Lihat Bukti</button>
+        <p class="text-sm text-[#525252]">22 Juli 2026</p>
+        <div>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-upgrade-request>Verifikasi</button>
+        </div>
+        <div class="flex justify-end">
+          <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-upgrade-request>Delete</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center" data-upgrade-request-row data-username="client_wakirim">
+        <p class="font-semibold text-[#111111]">client_wakirim</p>
+        <p class="truncate text-sm text-[#525252]" title="client@email.com">client@email.com</p>
+        <p class="text-sm font-semibold text-[#111111]">Best Value</p>
+        <p class="text-sm text-[#525252]">22 Mei 2026, 10:18 WIB</p>
+        <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-upgrade-proof="client_wakirim">Lihat Bukti</button>
+        <p class="text-sm text-[#525252]">22 November 2026</p>
+        <div>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-upgrade-request>Verifikasi</button>
+        </div>
+        <div class="flex justify-end">
+          <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-upgrade-request>Delete</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center" data-upgrade-request-row data-username="user_techcorp">
+        <p class="font-semibold text-[#111111]">user_techcorp</p>
+        <p class="truncate text-sm text-[#525252]" title="techcorp@techcorp.id">techcorp@techcorp.id</p>
+        <p class="text-sm font-semibold text-[#111111]">Starter</p>
+        <p class="text-sm text-[#525252]">21 Mei 2026, 19:05 WIB</p>
+        <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-upgrade-proof="user_techcorp">Lihat Bukti</button>
+        <p class="text-sm text-[#525252]">21 Juni 2026</p>
+        <div>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-upgrade-request>Verifikasi</button>
+        </div>
+        <div class="flex justify-end">
+          <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-upgrade-request>Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

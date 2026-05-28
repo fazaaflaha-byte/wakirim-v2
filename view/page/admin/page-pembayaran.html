@@ -1,0 +1,363 @@
+<header class="mb-6 flex flex-col gap-4 border-b border-[#e5e7eb] pb-6 md:flex-row md:items-end md:justify-between">
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Admin Panel</p>
+    <h1 class="m-0 text-[28px] font-semibold leading-tight text-[#111111]">Pembayaran</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">Pantau pembayaran client, bukti transfer, dan status verifikasi.</p>
+  </div>
+</header>
+
+<section class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Ringkasan pembayaran">
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <p class="text-sm font-medium text-[#737373]">Menunggu</p>
+    <p id="pending-count" class="mt-3 text-3xl font-semibold text-[#111111]">-</p>
+  </article>
+  <div class="rounded-lg border border-[#e5e7eb] bg-white p-5 flex flex-col justify-center">
+    <label for="search-email-input" class="text-sm font-medium text-[#737373] mb-2 block">Cari berdasarkan Email</label>
+    <div class="relative">
+      <input id="search-email-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white pl-3 pr-10 py-2.5 text-sm font-medium text-[#111111] outline-none transition-colors focus:border-[#111111] placeholder:text-[#a3a3a3]" type="text" placeholder="Masukkan email client...">
+      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[#737373]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section id="verify-payment-card" class="hidden rounded-lg border border-[#111111] bg-white p-5" aria-label="Verifikasi pembayaran">
+  <div class="mb-5 flex flex-col gap-3 border-b border-[#e5e7eb] pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#737373]">Verifikasi Pembayaran</p>
+      <h2 class="mt-1 text-[18px] font-semibold text-[#111111]">Kirim Informasi Akun</h2>
+      <p class="mt-1 text-sm text-[#737373]">Pastikan data sudah benar sebelum dikirim ke email client.</p>
+    </div>
+    <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white cursor-pointer" type="button" data-close-verify>
+      Tutup
+    </button>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Username</span>
+      <input id="verify-username-input" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="text" readonly>
+    </label>
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Email</span>
+      <input id="verify-email-input" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="email" readonly>
+    </label>
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Password Akun</span>
+      <input id="verify-password-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition-colors focus:border-[#111111]" type="text" placeholder="Masukkan password akun">
+    </label>
+    <button id="send-email-btn" class="rounded-lg bg-[#111111] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] cursor-pointer whitespace-nowrap" type="button">
+        Verifikasi & Kirim Email
+      </button>
+  </div>
+
+  <p id="verify-status" class="mt-3 hidden rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-sm font-medium text-[#525252]"></p>
+</section>
+
+<section class="rounded-lg border border-[#e5e7eb]  mt-4 bg-white p-5" aria-label="List pembayaran">
+  <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">List Pembayaran</h2>
+      <p class="mt-1 text-sm text-[#737373]">Daftar pembayaran dan status verifikasi.</p>
+    </div>
+    <span class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1 text-xs font-medium text-[#525252]">QRIS / Transfer</span>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-[#e5e7eb]">
+    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] lg:grid lg:grid-cols-[minmax(120px,1fr)_180px_100px_120px_130px_130px_100px_190px]">
+      <span class="whitespace-nowrap">Username</span>
+      <span class="whitespace-nowrap">Email</span>
+      <span class="whitespace-nowrap">Paket</span>
+      <span class="whitespace-nowrap">Total Harga</span>
+      <span class="whitespace-nowrap">Bukti Pembayaran</span>
+      <span class="whitespace-nowrap">Tanggal Bayar</span>
+      <span class="whitespace-nowrap">Catatan</span>
+      <span class="whitespace-nowrap text-right">Aksi</span>
+    </div>
+
+    <div id="payment-list" class="divide-y divide-[#e5e7eb]">
+      <!-- Loading state -->
+      <div class="grid gap-3 px-4 py-8 text-center text-[#737373]">
+        Memuat data...
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Image Preview Modal -->
+<div id="image-modal" class="fixed inset-0 z-50 hidden bg-black/90" aria-hidden="true">
+  <div class="flex h-full items-center justify-center p-4">
+    <button id="close-modal" class="absolute right-4 top-4 rounded-full bg-white p-2 text-black hover:bg-gray-200">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <img id="modal-image" class="max-h-[90vh] max-w-[90vw] rounded-lg object-contain" src="" alt="Bukti Pembayaran">
+  </div>
+</div>
+
+<script>
+  // Global state
+  let payments = [];
+  let currentPaymentId = null;
+
+  // Format currency
+  function formatRupiah(number) {
+    return 'Rp' + number.toLocaleString('id-ID');
+  }
+
+  // Format date
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Jakarta',
+      timeZoneName: 'short'
+    });
+  }
+
+  // Load payments from API
+  async function loadPayments() {
+    try {
+      const response = await fetch('/admin/api/payments');
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        payments = result.data;
+        renderPaymentList();
+        updatePendingCount();
+      }
+    } catch (error) {
+      console.error('Failed to load payments:', error);
+      document.getElementById('payment-list').innerHTML = `
+        <div class="grid gap-3 px-4 py-8 text-center text-red-500">
+          Gagal memuat data. Silakan refresh halaman.
+        </div>
+      `;
+    }
+  }
+
+  // Update pending count
+  async function updatePendingCount() {
+    try {
+      const response = await fetch('/admin/api/payments/stats');
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        document.getElementById('pending-count').textContent = result.data.menunggu || 0;
+      }
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    }
+  }
+
+  // Render payment list
+  function renderPaymentList() {
+    const container = document.getElementById('payment-list');
+
+    if (payments.length === 0) {
+      container.innerHTML = `
+        <div class="grid gap-3 px-4 py-8 text-center text-[#737373]">
+          Belum ada data pembayaran.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = payments.map(p => `
+        <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(120px,1fr)_180px_100px_120px_130px_130px_100px_190px] lg:items-center" data-payment-row>
+          <p class="font-semibold text-[#111111]">${escapeHtml(p.username)}</p>
+          <p class="text-sm text-[#525252] truncate" title="${escapeHtml(p.email)}">${escapeHtml(p.email)}</p>
+          <p class="text-sm text-[#525252]">${escapeHtml(p.paket)}</p>
+          <p class="text-sm font-semibold text-[#111111]">${formatRupiah(p.total_harga)}</p>
+          <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" onclick="showImagePreview('${p.id}')">Lihat Bukti</button>
+          <p class="text-sm text-[#525252]">${p.tanggal_bayar}</p>
+          <p class="text-sm text-[#737373] truncate" title="${escapeHtml(p.catatan || '-')}">${p.catatan || '-'}</p>
+          <div class="flex justify-end gap-2">
+            ${p.status === 'pending'
+              ? `<button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] cursor-pointer" type="button" onclick="openVerifyModal('${p.id}', '${escapeHtml(p.username)}', '${escapeHtml(p.email)}')">Verifikasi</button>`
+              : '<button class="cursor-not-allowed rounded-lg bg-[#e5e7eb] px-3 py-2 text-sm font-semibold text-[#737373]" type="button" disabled>Terverifikasi</button>'
+            }
+            <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" onclick="deletePayment('${p.id}', this)">Delete</button>
+          </div>
+      </div>
+    `).join('');
+  }
+
+  // Open verify modal
+  function openVerifyModal(paymentId, username, email) {
+    currentPaymentId = paymentId;
+    document.getElementById('verify-username-input').value = username;
+    document.getElementById('verify-email-input').value = email;
+    document.getElementById('verify-password-input').value = '';
+    document.getElementById('verify-status').classList.add('hidden');
+    document.getElementById('verify-payment-card').classList.remove('hidden');
+    document.getElementById('verify-payment-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Close verify modal
+  document.querySelector('[data-close-verify]')?.addEventListener('click', () => {
+    document.getElementById('verify-payment-card').classList.add('hidden');
+  });
+
+  // Send email button
+  document.getElementById('send-email-btn')?.addEventListener('click', async () => {
+    const password = document.getElementById('verify-password-input').value.trim();
+
+    if (!password) {
+      showVerifyStatus('Password akun diperlukan', true);
+      return;
+    }
+
+    // Show loading
+    const btn = document.getElementById('send-email-btn');
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
+
+    try {
+      const response = await fetch('/admin/api/payments/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          payment_id: currentPaymentId,
+          account_password: password
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showVerifyStatus('Pembayaran berhasil diverifikasi dan email akun dikirim', false);
+        document.getElementById('verify-payment-card').classList.add('hidden');
+        loadPayments();
+      } else {
+        showVerifyStatus(result.message || 'Terjadi kesalahan', true);
+        btn.disabled = false;
+        btn.textContent = 'Verifikasi & Kirim Email';
+      }
+    } catch (error) {
+      showVerifyStatus('Gagal memproses. Silakan coba lagi.', true);
+      btn.disabled = false;
+      btn.textContent = 'Verifikasi & Kirim Email';
+    }
+  });
+
+  // Show verify status
+  function showVerifyStatus(message, isError) {
+    const statusEl = document.getElementById('verify-status');
+    statusEl.textContent = message;
+    statusEl.classList.remove('hidden');
+    statusEl.classList.toggle('border-red-200', isError);
+    statusEl.classList.toggle('bg-red-50', isError);
+    statusEl.classList.toggle('text-red-700', isError);
+    statusEl.classList.toggle('border-green-200', !isError);
+    statusEl.classList.toggle('bg-green-50', !isError);
+    statusEl.classList.toggle('text-green-700', !isError);
+  }
+
+  async function deletePayment(paymentId, button) {
+    const payment = payments.find(p => p.id === paymentId);
+    const username = payment?.username || '-';
+    if (!confirm(`Hapus pembayaran ${username}? Data payment dan akun terkait akan dihapus.`)) return;
+
+    const originalText = button?.textContent || '';
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Menghapus...';
+    }
+
+    try {
+      const response = await fetch('/admin/api/payments/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          payment_id: paymentId
+        })
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Gagal menghapus pembayaran.');
+      }
+
+      if (currentPaymentId === paymentId) {
+        currentPaymentId = null;
+        document.getElementById('verify-payment-card').classList.add('hidden');
+      }
+
+      await loadPayments();
+    } catch (error) {
+      alert(error.message || 'Gagal menghapus pembayaran.');
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText || 'Delete';
+      }
+    }
+  }
+
+  // Image preview
+  async function showImagePreview(paymentId) {
+    const payment = payments.find(p => p.id === paymentId);
+    if (!payment || !payment.bukti_pembayaran) {
+      alert('Bukti pembayaran tidak tersedia');
+      return;
+    }
+
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+
+    modalImage.src = 'data:image/jpeg;base64,' + payment.bukti_pembayaran;
+    modal.classList.remove('hidden');
+  }
+
+  // Close image modal
+  document.getElementById('close-modal')?.addEventListener('click', () => {
+    document.getElementById('image-modal').classList.add('hidden');
+  });
+
+  document.getElementById('image-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'image-modal') {
+      document.getElementById('image-modal').classList.add('hidden');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.getElementById('image-modal')?.classList.add('hidden');
+    }
+  });
+
+  // Search functionality
+  document.getElementById('search-email-input')?.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('[data-payment-row]');
+
+    rows.forEach(row => {
+      const email = row.querySelector('p:nth-child(2)')?.textContent.toLowerCase() || '';
+      row.style.display = email.includes(searchTerm) ? '' : 'none';
+    });
+  });
+
+  // Escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Initialize
+  loadPayments();
+</script>

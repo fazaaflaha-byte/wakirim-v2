@@ -1,0 +1,199 @@
+<header class="mb-6 flex flex-col gap-4 border-b border-[#e5e7eb] pb-6 md:flex-row md:items-end md:justify-between">
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Admin Panel</p>
+    <h1 class="m-0 text-[28px] font-semibold leading-tight text-[#111111]">Pengaduan</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">Pantau pesan pengaduan client dan kirim balasan melalui email.</p>
+  </div>
+  <span id="complaint-total-badge" class="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#404040]">8 tiket</span>
+</header>
+
+<section class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Ringkasan pengaduan">
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <p class="text-sm font-medium text-[#737373]">Total Pengaduan</p>
+    <p class="mt-3 text-3xl font-semibold text-[#111111]">8</p>
+  </article>
+  <article class="rounded-lg border border-[#111111] bg-[#111111] p-5 text-white">
+    <p class="text-sm font-medium text-white/65">Belum Ditanggapi</p>
+    <p id="open-complaint-count" class="mt-3 text-3xl font-semibold">6</p>
+  </article>
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <p class="text-sm font-medium text-[#737373]">Sudah Ditanggapi</p>
+    <p id="closed-complaint-count" class="mt-3 text-3xl font-semibold text-[#111111]">2</p>
+  </article>
+</section>
+
+<section id="complaint-detail-card" class="mb-4 hidden rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Detail pengaduan">
+  <div class="mb-5 flex flex-col gap-3 border-b border-[#e5e7eb] pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#737373]">Detail Pengaduan</p>
+      <h2 id="complaint-detail-title" class="mt-1 text-[18px] font-semibold text-[#111111]">-</h2>
+      <p id="complaint-detail-meta" class="mt-1 text-sm text-[#737373]">-</p>
+    </div>
+    <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-close-complaint-detail>
+      Tutup
+    </button>
+  </div>
+
+  <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-[#737373]">Isi Pengaduan</p>
+    <p id="complaint-detail-message" class="mt-2 text-sm leading-6 text-[#404040]">-</p>
+  </div>
+</section>
+
+<section id="complaint-reply-card" class="mb-4 hidden rounded-lg border border-[#111111] bg-white p-5" aria-label="Tanggapi pengaduan">
+  <div class="mb-5 flex flex-col gap-3 border-b border-[#e5e7eb] pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#737373]">Tanggapi Pengaduan</p>
+      <h2 class="mt-1 text-[18px] font-semibold text-[#111111]">Kirim Balasan Client</h2>
+      <p class="mt-1 text-sm text-[#737373]">Balasan akan dikirim ke email yang terhubung dengan akun client.</p>
+    </div>
+    <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-close-complaint-reply>
+      Tutup
+    </button>
+  </div>
+
+  <div class="grid gap-3 lg:grid-cols-[1fr_1fr]">
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Username</span>
+      <input id="complaint-reply-username" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="text" readonly>
+    </label>
+    <label class="block">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Email</span>
+      <input id="complaint-reply-email" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="email" readonly>
+    </label>
+  </div>
+
+  <label class="mt-3 block">
+    <span class="mb-2 block text-sm font-semibold text-[#111111]">Balasan</span>
+    <textarea id="complaint-reply-message" class="min-h-32 w-full resize-y rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm leading-6 text-[#111111] outline-none transition-colors placeholder:text-[#a3a3a3] focus:border-[#111111]" placeholder="Tulis balasan untuk client..."></textarea>
+  </label>
+
+  <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p id="complaint-reply-status" class="hidden rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-sm font-medium text-[#525252]"></p>
+    <button class="rounded-lg bg-[#111111] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] sm:ml-auto" type="button" data-send-complaint-reply>
+      Kirim Balasan via Email
+    </button>
+  </div>
+</section>
+
+<section class="rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="List pengaduan">
+  <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">List Pengaduan</h2>
+      <p class="mt-1 text-sm text-[#737373]">Daftar pengaduan terbaru dari client.</p>
+    </div>
+    <label class="block w-full lg:max-w-xs">
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Cari Pengaduan</span>
+      <input id="search-complaint-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm font-medium text-[#111111] outline-none transition-colors placeholder:text-[#a3a3a3] focus:border-[#111111]" type="text" placeholder="Judul, username, atau email">
+    </label>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-[#e5e7eb]">
+    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] lg:grid lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px]">
+      <span>Judul Pengaduan</span>
+      <span>Username</span>
+      <span>Email</span>
+      <span>Tanggal</span>
+      <span>Status</span>
+      <span class="text-right">Aksi</span>
+    </div>
+
+    <div class="divide-y divide-[#e5e7eb]">
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Blast gagal terkirim" data-user="client_wakirim" data-email="client@wakirim.id" data-date="22 Mei 2026" data-status="Menunggu" data-message="Saya mengalami masalah saat mengirim pesan blast ke 500+ kontak. Pesan tidak terkirim sama sekali dan muncul error Connection timeout. Mohon bantuannya, ini urgent karena sedang ada campaign promosi.">
+        <p class="truncate font-semibold text-[#111111]" title="Blast gagal terkirim">Blast gagal terkirim</p>
+        <p class="truncate text-sm text-[#525252]" title="client_wakirim">client_wakirim</p>
+        <p class="truncate text-sm text-[#525252]" title="client@wakirim.id">client@wakirim.id</p>
+        <p class="text-sm text-[#525252]">22 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Pembayaran belum aktif" data-user="reseller_01" data-email="reseller01@wakirim.id" data-date="22 Mei 2026" data-status="Menunggu" data-message="Sudah transfer Rp149.000 untuk paket Growth tapi akun belum aktif. Bukti transfer sudah saya upload di dashboard. Mohon segera diproses, terima kasih.">
+        <p class="truncate font-semibold text-[#111111]" title="Pembayaran belum aktif">Pembayaran belum aktif</p>
+        <p class="truncate text-sm text-[#525252]" title="reseller_01">reseller_01</p>
+        <p class="truncate text-sm text-[#525252]" title="reseller01@wakirim.id">reseller01@wakirim.id</p>
+        <p class="text-sm text-[#525252]">22 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Error login berulang" data-user="user_techcorp" data-email="techcorp@techcorp.id" data-date="21 Mei 2026" data-status="Menunggu" data-message="Akun saya selalu error saat login. Sudah coba reset password 3x tapi masih sama. Muncul pesan Invalid session token. Tolong bantu saya.">
+        <p class="truncate font-semibold text-[#111111]" title="Error login berulang">Error login berulang</p>
+        <p class="truncate text-sm text-[#525252]" title="user_techcorp">user_techcorp</p>
+        <p class="truncate text-sm text-[#525252]" title="techcorp@techcorp.id">techcorp@techcorp.id</p>
+        <p class="text-sm text-[#525252]">21 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Fitur auto reply tidak jalan" data-user="admin_digital" data-email="admin@digital.co.id" data-date="21 Mei 2026" data-status="Menunggu" data-message="Auto reply yang saya setup tidak berfungsi. Sudah di setting dengan benar tapi pesan otomatis tidak terkirim ke customer.">
+        <p class="truncate font-semibold text-[#111111]" title="Fitur auto reply tidak jalan">Fitur auto reply tidak jalan</p>
+        <p class="truncate text-sm text-[#525252]" title="admin_digital">admin_digital</p>
+        <p class="truncate text-sm text-[#525252]" title="admin@digital.co.id">admin@digital.co.id</p>
+        <p class="text-sm text-[#525252]">21 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Request fitur broadcast" data-user="partner_netsoft" data-email="info@netsoft.web.id" data-date="20 Mei 2026" data-status="Menunggu" data-message="Boleh minta ditambahkan fitur broadcast jadwal? Biar bisa schedule pesan untuk dikirim otomatis di jam tertentu. Terima kasih.">
+        <p class="truncate font-semibold text-[#111111]" title="Request fitur broadcast">Request fitur broadcast</p>
+        <p class="truncate text-sm text-[#525252]" title="partner_netsoft">partner_netsoft</p>
+        <p class="truncate text-sm text-[#525252]" title="info@netsoft.web.id">info@netsoft.web.id</p>
+        <p class="text-sm text-[#525252]">20 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Top up gagal" data-user="client_jakarta" data-email="hello@jakarta.biz" data-date="20 Mei 2026" data-status="Menunggu" data-message="Saya ingin top up 1000 credits tapi selalu gagal. Payment gateway error.">
+        <p class="truncate font-semibold text-[#111111]" title="Top up gagal">Top up gagal</p>
+        <p class="truncate text-sm text-[#525252]" title="client_jakarta">client_jakarta</p>
+        <p class="truncate text-sm text-[#525252]" title="hello@jakarta.biz">hello@jakarta.biz</p>
+        <p class="text-sm text-[#525252]">20 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Template pesan corrupt" data-user="user_solution" data-email="support@solution.id" data-date="19 Mei 2026" data-status="Ditanggapi" data-message="Template pesan yang sudah saya simpan tiba-tiba corrupt. Tidak bisa diedit dan tidak bisa dihapus.">
+        <p class="truncate font-semibold text-[#111111]" title="Template pesan corrupt">Template pesan corrupt</p>
+        <p class="truncate text-sm text-[#525252]" title="user_solution">user_solution</p>
+        <p class="truncate text-sm text-[#525252]" title="support@solution.id">support@solution.id</p>
+        <p class="text-sm text-[#525252]">19 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#111111]" data-complaint-status>Ditanggapi</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(190px,1fr)_140px_190px_130px_130px_170px] lg:items-center" data-complaint-row data-title="Pertanyaan tentang paket" data-user="admin_creative" data-email="admin@creative.studio" data-date="19 Mei 2026" data-status="Ditanggapi" data-message="Halo, saya mau tanya. Untuk paket Best Value yang 12 bulan, apakah bisa diupgrade di tengah jalan? Terima kasih.">
+        <p class="truncate font-semibold text-[#111111]" title="Pertanyaan tentang paket">Pertanyaan tentang paket</p>
+        <p class="truncate text-sm text-[#525252]" title="admin_creative">admin_creative</p>
+        <p class="truncate text-sm text-[#525252]" title="admin@creative.studio">admin@creative.studio</p>
+        <p class="text-sm text-[#525252]">19 Mei 2026</p>
+        <span class="w-fit rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#111111]" data-complaint-status>Ditanggapi</span>
+        <div class="flex flex-wrap gap-2 lg:justify-end">
+          <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-complaint-detail>Detail</button>
+          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-complaint-reply>Tanggapi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

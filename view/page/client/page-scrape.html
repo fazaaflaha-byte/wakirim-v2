@@ -1,0 +1,278 @@
+<header class="mb-6 flex flex-col gap-4 border-b border-[#e5e7eb] pb-6 md:flex-row md:items-end md:justify-between">
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Group Scraper</p>
+    <h1 class="m-0 text-[28px] font-semibold leading-tight text-[#111111]">Scrape Group</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">Pilih group WhatsApp yang ingin diambil datanya, lalu jalankan proses scrape dari daftar terpilih.</p>
+  </div>
+  <div class="flex items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#404040]">
+    <span class="h-2 w-2 rounded-full bg-[#111111]" aria-hidden="true"></span>
+    6 group tersedia
+  </div>
+</header>
+
+<section class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]" aria-label="Scrape group">
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-[15px] font-semibold text-[#111111]">List Group</h2>
+        <p class="mt-1 text-sm text-[#737373]">Centang satu atau beberapa group untuk masuk antrean scrape.</p>
+      </div>
+      <span class="rounded-full border border-[#e5e7eb] px-3 py-1 text-xs font-medium text-[#525252]">Selectable</span>
+    </div>
+
+    <div class="space-y-3">
+      <label class="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4 transition-colors has-[:checked]:border-[#111111] has-[:checked]:bg-white">
+        <div class="min-w-0">
+          <p class="font-semibold text-[#111111]">Reseller Premium</p>
+          <p class="mt-1 text-sm text-[#737373]">1,248 member aktif</p>
+        </div>
+        <input class="h-4 w-4 shrink-0 accent-[#111111]" type="checkbox" name="groups" value="reseller-premium" data-members="1248" checked>
+      </label>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4 transition-colors has-[:checked]:border-[#111111] has-[:checked]:bg-white">
+        <div class="min-w-0">
+          <p class="font-semibold text-[#111111]">Customer Jakarta</p>
+          <p class="mt-1 text-sm text-[#737373]">842 member aktif</p>
+        </div>
+        <input class="h-4 w-4 shrink-0 accent-[#111111]" type="checkbox" name="groups" value="customer-jakarta" data-members="842">
+      </label>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4 transition-colors has-[:checked]:border-[#111111] has-[:checked]:bg-white">
+        <div class="min-w-0">
+          <p class="font-semibold text-[#111111]">Komunitas Bisnis</p>
+          <p class="mt-1 text-sm text-[#737373]">690 member aktif</p>
+        </div>
+        <input class="h-4 w-4 shrink-0 accent-[#111111]" type="checkbox" name="groups" value="komunitas-bisnis" data-members="690" checked>
+      </label>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4 transition-colors has-[:checked]:border-[#111111] has-[:checked]:bg-white">
+        <div class="min-w-0">
+          <p class="font-semibold text-[#111111]">Leads Bandung</p>
+          <p class="mt-1 text-sm text-[#737373]">531 member aktif</p>
+        </div>
+        <input class="h-4 w-4 shrink-0 accent-[#111111]" type="checkbox" name="groups" value="leads-bandung" data-members="531">
+      </label>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4 transition-colors has-[:checked]:border-[#111111] has-[:checked]:bg-white">
+        <div class="min-w-0">
+          <p class="font-semibold text-[#111111]">Promo Retail</p>
+          <p class="mt-1 text-sm text-[#737373]">427 member aktif</p>
+        </div>
+        <input class="h-4 w-4 shrink-0 accent-[#111111]" type="checkbox" name="groups" value="promo-retail" data-members="427">
+      </label>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4 transition-colors has-[:checked]:border-[#111111] has-[:checked]:bg-white">
+        <div class="min-w-0">
+          <p class="font-semibold text-[#111111]">Affiliate Wakirim</p>
+          <p class="mt-1 text-sm text-[#737373]">314 member aktif</p>
+        </div>
+        <input class="h-4 w-4 shrink-0 accent-[#111111]" type="checkbox" name="groups" value="affiliate-wakirim" data-members="314">
+      </label>
+    </div>
+  </article>
+
+  <aside class="rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Ringkasan scrape">
+    <h2 class="text-[15px] font-semibold text-[#111111]">Ringkasan</h2>
+    <div class="mt-5 space-y-3">
+      <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+        <span class="text-sm text-[#737373]">Group dipilih</span>
+        <span id="scrape-selected-count" class="text-sm font-semibold text-[#111111]">2</span>
+      </div>
+      <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+        <span class="text-sm text-[#737373]">Estimasi data</span>
+        <span id="scrape-member-count" class="text-sm font-semibold text-[#111111]">1,938</span>
+      </div>
+      <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+        <span class="text-sm text-[#737373]">Output</span>
+        <span class="text-sm font-semibold text-[#111111]">CSV</span>
+      </div>
+    </div>
+
+    <button class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Scrape Sekarang
+    </button>
+
+    <div class="mt-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama file download</span>
+        <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: hasil-scrape.csv">
+      </label>
+      <button class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#111111] bg-white px-4 py-3 font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white" type="button">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Download Contact
+      </button>
+    </div>
+  </aside>
+</section>
+
+<section class="mt-4 rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Tambahkan contact">
+  <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">Tambahkan Contact</h2>
+      <p class="mt-1 text-sm text-[#737373]">Simpan contact baru dari file CSV atau input manual ke file contact.</p>
+    </div>
+    <span class="rounded-full border border-[#e5e7eb] px-3 py-1 text-xs font-medium text-[#525252]">CSV / Manual</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <article class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <h3 class="text-sm font-semibold text-[#111111]">Import dari CSV</h3>
+        <span class="rounded border border-[#d4d4d4] bg-white px-2 py-0.5 text-xs font-medium text-[#525252]">Opsi 1</span>
+      </div>
+      <div class="space-y-2">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama file contact</span>
+          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: leads-baru.csv">
+        </label>
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-[#525252]">File CSV</span>
+          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] file:mr-3 file:rounded-md file:border-0 file:bg-[#111111] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="file" accept=".csv">
+        </label>
+      </div>
+      <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Save Contact
+      </button>
+    </article>
+
+    <article class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <h3 class="text-sm font-semibold text-[#111111]">Input Manual</h3>
+        <span class="rounded border border-[#d4d4d4] bg-white px-2 py-0.5 text-xs font-medium text-[#525252]">Opsi 2</span>
+      </div>
+      <div class="space-y-3">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama file contact</span>
+          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: contact-manual.csv">
+        </label>
+        <div id="manual-contact-rows" class="space-y-3">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px]" data-manual-contact-row>
+            <label class="block">
+              <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nomor telepon</span>
+              <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="tel" placeholder="6281234567890">
+            </label>
+            <label class="block">
+              <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama opsional</span>
+              <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="Nama contact">
+            </label>
+            <button class="mt-0 flex h-11 w-full items-center justify-center rounded-lg bg-[#111111] text-lg font-semibold text-white transition-colors hover:bg-[#2b2b2b] sm:mt-[26px]" type="button" data-add-manual-contact aria-label="Tambah contact manual">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save Contact
+      </button>
+    </article>
+  </div>
+</section>
+
+<section class="relative mt-4 rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="List contact tersimpan">
+  <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">List Contact Tersimpan</h2>
+      <p class="mt-1 text-sm text-[#737373]">File contact CSV yang sudah tersimpan beserta tanggal dan total contact.</p>
+    </div>
+    <span id="saved-contact-count" class="rounded-full border border-[#e5e7eb] px-3 py-1 text-xs font-medium text-[#525252]">3 file contact</span>
+  </div>
+
+  <div id="saved-contact-detail-card" class="absolute left-1/2 top-1/2 z-20 hidden w-[min(92vw,460px)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[#111111] bg-white p-5 shadow-xl">
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#737373]">Detail Contact</p>
+        <h3 id="saved-contact-detail-title" class="mt-1 truncate text-lg font-semibold text-[#111111]">contact.csv</h3>
+      </div>
+      <button class="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#d4d4d4] bg-white text-lg font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-close-contact-detail aria-label="Tutup detail contact">
+        x
+      </button>
+    </div>
+    <div id="saved-contact-detail-list" class="max-h-72 space-y-2 overflow-y-auto"></div>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-[#e5e7eb]">
+    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] md:grid md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px]">
+      <span class="whitespace-nowrap">Nama File Contact</span>
+      <span class="whitespace-nowrap">Tanggal Penyimpanan</span>
+      <span class="whitespace-nowrap">Total Contact</span>
+      <span class="whitespace-nowrap">Format</span>
+      <span class="whitespace-nowrap text-right">Aksi</span>
+    </div>
+
+    <div id="saved-contact-list" class="divide-y divide-[#e5e7eb]">
+      <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-detail="6281234567890|Andi Reseller;6289876543210|Sinta Admin;6287778889999|Budi">
+        <div class="min-w-0">
+          <p class="truncate font-semibold text-[#111111]">reseller-premium.csv</p>
+          <p class="mt-1 text-xs text-[#737373] md:hidden">21 Mei 2026, 21:10 WIB</p>
+        </div>
+        <p class="hidden text-sm text-[#525252] md:block">21 Mei 2026, 21:10 WIB</p>
+        <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
+          <span class="text-[#737373] md:hidden">Total Contact</span>
+          <span class="font-semibold text-[#111111]">1,248</span>
+        </div>
+        <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium text-[#525252]">CSV</span>
+        <div class="flex flex-wrap gap-2 md:justify-end">
+          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
+            Detail
+          </button>
+          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-detail="6285551234567|Raka;6285557654321|Maya;6285558880001|">
+        <div class="min-w-0">
+          <p class="truncate font-semibold text-[#111111]">contact-manual.csv</p>
+          <p class="mt-1 text-xs text-[#737373] md:hidden">21 Mei 2026, 19:35 WIB</p>
+        </div>
+        <p class="hidden text-sm text-[#525252] md:block">21 Mei 2026, 19:35 WIB</p>
+        <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
+          <span class="text-[#737373] md:hidden">Total Contact</span>
+          <span class="font-semibold text-[#111111]">86</span>
+        </div>
+        <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium text-[#525252]">CSV</span>
+        <div class="flex flex-wrap gap-2 md:justify-end">
+          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
+            Detail
+          </button>
+          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-detail="6281112223334|Dian;6282223334445|Fajar;6283334445556|Nadia">
+        <div class="min-w-0">
+          <p class="truncate font-semibold text-[#111111]">leads-baru.csv</p>
+          <p class="mt-1 text-xs text-[#737373] md:hidden">20 Mei 2026, 16:12 WIB</p>
+        </div>
+        <p class="hidden text-sm text-[#525252] md:block">20 Mei 2026, 16:12 WIB</p>
+        <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
+          <span class="text-[#737373] md:hidden">Total Contact</span>
+          <span class="font-semibold text-[#111111]">531</span>
+        </div>
+        <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium text-[#525252]">CSV</span>
+        <div class="flex flex-wrap gap-2 md:justify-end">
+          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
+            Detail
+          </button>
+          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

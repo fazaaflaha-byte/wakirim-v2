@@ -1,0 +1,124 @@
+<header class="mb-6 flex flex-col gap-4 border-b border-[#e5e7eb] pb-6 md:flex-row md:items-end md:justify-between">
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Account Settings</p>
+    <h1 class="m-0 text-[28px] font-semibold leading-tight text-[#111111]">Account</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">Lihat informasi akun dan ubah password untuk menjaga keamanan akses.</p>
+  </div>
+  <div class="flex items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#404040]">
+    <span class="h-2 w-2 rounded-full bg-[#111111]" aria-hidden="true"></span>
+    Active account
+  </div>
+</header>
+
+<section class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_420px]" aria-label="Akun">
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-[15px] font-semibold text-[#111111]">Informasi Akun</h2>
+        <p class="mt-1 text-sm text-[#737373]">Data login akun client Wakirim.</p>
+      </div>
+      <span class="rounded-full border border-[#e5e7eb] px-3 py-1 text-xs font-medium text-[#525252]">Client</span>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+        <p class="text-sm text-[#737373]">Username</p>
+        <p id="account-username" class="mt-2 text-lg font-semibold text-[#111111]">-</p>
+      </div>
+      <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+        <p class="text-sm text-[#737373]">Password</p>
+        <div class="mt-2 flex items-center justify-between gap-3">
+          <p class="text-lg font-semibold text-[#111111]" data-account-password data-password-value="">********</p>
+          <button class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#d4d4d4] bg-white text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-toggle-account-password aria-label="Lihat password">
+            <svg class="h-4 w-4" data-eye-open fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+            </svg>
+            <svg class="hidden h-4 w-4" data-eye-closed fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.6 10.6A2 2 0 0012 14a2 2 0 001.4-.6M9.9 4.2A10.8 10.8 0 0112 4c6.5 0 10 8 10 8a17.5 17.5 0 01-3.1 4.2M6.2 6.2C3.5 8.2 2 12 2 12s3.5 8 10 8c1.2 0 2.3-.2 3.3-.6"/>
+            </svg>
+          </button>
+        </div>
+        <p id="account-password-note" class="mt-2 text-xs text-[#737373]">Password tidak dapat di tampilkan, silahkan cek email untuk melihat password.</p>
+      </div>
+    </div>
+
+    <div class="mt-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+      <p class="text-sm text-[#737373]">Tanggal Daftar Akun</p>
+      <p id="account-registered-at" class="mt-2 text-lg font-semibold text-[#111111]">-</p>
+    </div>
+
+    <div class="mt-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+      <p class="text-sm text-[#737373]">Tanggal Berakhir</p>
+      <p id="account-expired-at" class="mt-2 text-lg font-semibold text-[#111111]">-</p>
+    </div>
+  </article>
+
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <h2 class="text-[15px] font-semibold text-[#111111]">Edit Password</h2>
+    <p class="mt-1 text-sm text-[#737373]">Masukkan password lama dan password baru.</p>
+
+    <div class="mt-5 space-y-3">
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-medium text-[#525252]">Password lama</span>
+        <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="password" placeholder="Password lama">
+      </label>
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-medium text-[#525252]">Password baru</span>
+        <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="password" placeholder="Password baru">
+      </label>
+      <label class="block">
+        <span class="mb-1.5 block text-sm font-medium text-[#525252]">Konfirmasi password baru</span>
+        <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="password" placeholder="Ulangi password baru">
+      </label>
+    </div>
+
+    <button class="mt-5 flex w-full items-center justify-center rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">Simpan Password</button>
+  </article>
+</section>
+
+<section class="mt-4 rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Form pengaduan atau laporan">
+  <div class="mb-5">
+    <h2 class="text-[15px] font-semibold text-[#111111]">Form Pengaduan atau Laporan</h2>
+    <p class="mt-1 text-sm text-[#737373]">Kirim pengaduan akun atau laporan kendala ke admin Wakirim.</p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-[#525252]">Email</span>
+      <input id="complaint-email-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="email" placeholder="email@domain.com" value="client@wakirim.id">
+    </label>
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-[#525252]">Judul Pengaduan</span>
+      <input id="complaint-title-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="Contoh: Tidak bisa kirim blast">
+    </label>
+  </div>
+
+  <label class="mt-3 block">
+    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Deskripsi Pengaduan</span>
+    <textarea id="complaint-description-input" class="min-h-32 w-full resize-y rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm leading-6 text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" placeholder="Jelaskan kendala atau laporan secara singkat..."></textarea>
+  </label>
+
+  <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p id="complaint-form-status" class="hidden rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-sm font-medium text-[#525252]"></p>
+    <button class="flex items-center justify-center rounded-lg bg-[#111111] px-5 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b] sm:ml-auto" type="button" data-send-client-complaint>
+      Kirim
+    </button>
+  </div>
+</section>
+
+<section class="mt-4 rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Aksi akun">
+  <div class="mb-5">
+    <h2 class="text-[15px] font-semibold text-[#111111]">Aksi Akun</h2>
+    <p class="mt-1 text-sm text-[#737373]">Keluar dari sesi saat ini atau hapus akun secara permanen.</p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+    <button class="flex w-full items-center justify-center rounded-lg border border-red-300 bg-white px-4 py-3 font-semibold text-red-700 transition-colors hover:bg-red-50" type="button" data-client-logout>
+      Logout
+    </button>
+    <button class="flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-red-700" type="button" data-client-delete-account>
+      Hapus Akun
+    </button>
+  </div>
+</section>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login Admin Wakirim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-[#f4f4f5] font-sans text-[#111111] antialiased">
+  <main class="grid min-h-screen place-items-center px-5 py-10">
+    <section class="w-full max-w-md rounded-lg border border-[#e5e7eb] bg-white p-6 shadow-sm" aria-label="Login admin">
+      <a class="mb-8 inline-flex items-center" href="/" aria-label="Wakirim">
+        <img class="h-12 w-auto" src="/assets/icon/logo-wakirim-site.webp" alt="Wakirim">
+      </a>
+
+      <div class="mb-6 border-b border-[#e5e7eb] pb-5">
+        <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Admin Panel</p>
+        <h1 class="text-[28px] font-semibold leading-tight text-[#111111]">Login Admin</h1>
+        <p class="mt-2 text-sm leading-6 text-[#737373]">Masukkan username dan password admin untuk membuka dashboard.</p>
+      </div>
+
+      <p id="admin-login-error" class="mb-4 hidden rounded-lg border border-[#111111] bg-white px-3 py-2 text-sm font-medium text-[#111111]">
+        Username atau password admin salah.
+      </p>
+
+      <form class="space-y-4" action="/admin" method="post">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-[#525252]">Username</span>
+          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" name="username" type="text" autocomplete="username" placeholder="Username admin" required>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-[#525252]">Password</span>
+          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" name="password" type="password" autocomplete="current-password" placeholder="Password admin" required>
+        </label>
+
+        <button class="flex w-full items-center justify-center rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="submit">
+          Masuk Dashboard Admin
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "1") {
+      document.getElementById("admin-login-error")?.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>

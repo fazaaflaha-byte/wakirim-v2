@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login Wakirim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-[#f4f4f5] font-sans text-[#111111] antialiased">
+    <header class="border-b border-[#e5e7eb] bg-white">
+        <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8" aria-label="Login">
+            <a class="inline-flex items-center" href="/" aria-label="Wakirim">
+                <img class="h-12 w-auto" src="/assets/icon/logo-wakirim-site.webp" alt="Wakirim">
+            </a>
+            <a class="rounded-lg border border-[#111111] bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white" href="/">
+                Kembali
+            </a>
+        </nav>
+    </header>
+
+    <main class="mx-auto grid min-h-[calc(100vh-81px)] max-w-6xl gap-5 px-5 py-8 md:grid-cols-[minmax(0,1fr)_420px] md:px-8 md:py-12">
+        <section class="flex items-center">
+            <div class="w-full rounded-lg border border-[#e5e7eb] bg-white p-6">
+                <p class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Dashboard Access</p>
+                <h1 class="text-3xl font-semibold leading-tight text-[#111111] md:text-5xl">Masuk ke dashboard Wakirim</h1>
+                <p class="mt-4 max-w-2xl text-sm leading-6 text-[#6b7280] md:text-base">
+                    Kelola blast, data contact, history pengiriman, pembayaran, dan pengaturan akun dari satu ruang kerja yang rapi.
+                </p>
+
+                <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+                        <p class="text-sm text-[#737373]">Status</p>
+                        <p class="mt-2 text-xl font-semibold text-[#111111]">Ready</p>
+                    </div>
+                    <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+                        <p class="text-sm text-[#737373]">Monitoring</p>
+                        <p class="mt-2 text-xl font-semibold text-[#111111]">24/7</p>
+                    </div>
+                    <div class="rounded-lg border border-[#111111] bg-[#111111] p-4 text-white">
+                        <p class="text-sm text-white/65">Dashboard</p>
+                        <p class="mt-2 text-xl font-semibold">Client</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-lg border border-[#e5e7eb] bg-white p-5 md:p-6" aria-label="Form login">
+            <div class="border-b border-[#e5e7eb] pb-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Login</p>
+                <h2 class="mt-2 text-2xl font-semibold text-[#111111]">Masuk Dashboard</h2>
+            </div>
+
+            <form id="client-login-form" class="mt-5 grid gap-4">
+                <label class="block" for="username">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Username</span>
+                    <input
+                        class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        id="username" name="username" type="text" placeholder="Masukkan username atau email" required>
+                </label>
+
+                <label class="block" for="password">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Password</span>
+                    <input
+                        class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        id="password" name="password" type="password" placeholder="Masukkan password" required>
+                </label>
+
+                <p id="client-login-status" class="hidden rounded-lg border px-3 py-2 text-sm font-medium"></p>
+
+                <button id="client-login-button" class="mt-2 w-full rounded-lg bg-[#111111] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]"
+                    type="submit">
+                    Masuk
+                </button>
+            </form>
+
+            <div class="mt-5 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+                <h3 class="text-sm font-semibold text-[#111111]">Lupa Password</h3>
+                <label class="mt-3 block" for="forgot-email">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Email</span>
+                    <input
+                        class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        id="forgot-email" type="email" placeholder="nama@email.com">
+                </label>
+                <p class="mt-3 text-sm leading-6 text-[#737373]">Tunggu balasan dari admin untuk password baru.</p>
+                <button class="mt-3 flex w-full items-center justify-center rounded-lg border border-[#111111] bg-white px-5 py-3 text-sm font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white" type="button">
+                    Kirim Permintaan
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+      const loginForm = document.getElementById("client-login-form");
+      const loginButton = document.getElementById("client-login-button");
+      const loginStatus = document.getElementById("client-login-status");
+      const usernameInput = document.getElementById("username");
+      let lockTimer = null;
+      let lockState = {
+        active: false,
+        mode: "none",
+        reason: "",
+        remainingSeconds: 0,
+        until: "",
+      };
+
+      function setLoginStatus(message, tone) {
+        if (!loginStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-green-200 bg-green-50 text-green-700";
+
+        loginStatus.className = `rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        loginStatus.textContent = message;
+      }
+
+      function formatDuration(seconds) {
+        const value = Math.max(0, Number(seconds || 0));
+        const minutes = Math.floor(value / 60);
+        const secs = value % 60;
+        if (minutes > 0) return `${minutes} menit ${secs} detik`;
+        return `${secs} detik`;
+      }
+
+      function formatUntil(isoText) {
+        if (!isoText) return "-";
+        const date = new Date(isoText);
+        if (Number.isNaN(date.getTime())) return isoText;
+        return date.toLocaleString("id-ID", {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      function clearLockCountdown() {
+        if (lockTimer) {
+          clearInterval(lockTimer);
+          lockTimer = null;
+        }
+      }
+
+      function applyLockUI() {
+        if (!loginButton) return;
+
+        if (lockState.active && lockState.remainingSeconds > 0) {
+          loginButton.disabled = true;
+          loginButton.textContent = `Tunggu ${formatDuration(lockState.remainingSeconds)}`;
+          const reason = lockState.reason || "Login ditahan sementara.";
+          const until = formatUntil(lockState.until);
+          setLoginStatus(`${reason} Sisa waktu: ${formatDuration(lockState.remainingSeconds)} (hingga ${until}).`, "error");
+          return;
+        }
+
+        lockState = {
+          active: false,
+          mode: "none",
+          reason: "",
+          remainingSeconds: 0,
+          until: "",
+        };
+        loginButton.disabled = false;
+        loginButton.textContent = "Masuk";
+      }
+
+      function startLockCountdown(status) {
+        clearLockCountdown();
+        lockState = {
+          active: Boolean(status?.active),
+          mode: String(status?.mode || "cooldown"),
+          reason: String(status?.reason || "Login ditahan sementara."),
+          remainingSeconds: Math.max(0, Number(status?.remaining_seconds || 0)),
+          until: String(status?.until || ""),
+        };
+
+        applyLockUI();
+
+        if (!lockState.active) return;
+
+        lockTimer = setInterval(() => {
+          lockState.remainingSeconds = Math.max(0, lockState.remainingSeconds - 1);
+          applyLockUI();
+
+          if (lockState.remainingSeconds <= 0) {
+            clearLockCountdown();
+            checkLoginProtection();
+          }
+        }, 1000);
+      }
+
+      async function checkLoginProtection() {
+        const username = String(usernameInput?.value || "").trim();
+        const query = username ? `?username=${encodeURIComponent(username)}` : "";
+
+        try {
+          const response = await fetch(`/oauth/login-status${query}`, {
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success) return;
+
+          const status = result.data || {};
+          if (status.active) {
+            startLockCountdown(status);
+            return;
+          }
+
+          clearLockCountdown();
+          applyLockUI();
+        } catch (_) {}
+      }
+
+      loginForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const username = String(document.getElementById("username")?.value || "").trim();
+        const password = String(document.getElementById("password")?.value || "");
+
+        if (!username || !password) {
+          setLoginStatus("Username/email dan password wajib diisi.", "error");
+          return;
+        }
+
+        if (lockState.active && lockState.remainingSeconds > 0) {
+          applyLockUI();
+          return;
+        }
+
+        if (loginButton) {
+          loginButton.disabled = true;
+          loginButton.textContent = "Memproses...";
+        }
+
+        try {
+          const response = await fetch("/oauth/token", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              grant_type: "password",
+              username,
+              password,
+            }),
+          });
+
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            if ((response.status === 429 || response.status === 403) && result?.data?.active) {
+              startLockCountdown(result.data);
+              return;
+            }
+            throw new Error(result.message || "Login gagal.");
+          }
+
+          clearLockCountdown();
+          setLoginStatus("Login berhasil, mengarahkan ke dashboard...", "success");
+          window.location.href = "/dashboard";
+        } catch (error) {
+          setLoginStatus(error.message || "Login gagal.", "error");
+        } finally {
+          if (loginButton && (!lockState.active || lockState.remainingSeconds <= 0)) {
+            loginButton.disabled = false;
+            loginButton.textContent = "Masuk";
+          }
+        }
+      });
+
+      usernameInput?.addEventListener("change", checkLoginProtection);
+      window.addEventListener("load", checkLoginProtection);
+    </script>
+</body>
+
+</html>

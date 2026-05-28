@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pembayaran Wakirim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-[#f4f4f5] font-sans text-[#111111] antialiased">
+    <header class="border-b border-[#e5e7eb] bg-white">
+        <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8"
+            aria-label="Navigasi pembayaran">
+            <a class="inline-flex items-center" href="/" aria-label="Wakirim">
+                <img class="h-12 w-auto" src="/assets/icon/logo-wakirim-site.webp" alt="Wakirim">
+            </a>
+            <a class="rounded-lg border border-[#111111] bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white"
+                href="/">
+                Kembali
+            </a>
+        </nav>
+    </header>
+
+    <main class="mx-auto grid min-h-[calc(100vh-81px)] max-w-6xl gap-5 px-5 py-8 md:grid-cols-[minmax(0,1fr)_420px] md:px-8 md:py-12">
+        <section class="rounded-lg border border-[#e5e7eb] bg-white p-5 md:p-6" aria-label="QR pembayaran">
+            <div class="border-b border-[#e5e7eb] pb-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Pembayaran</p>
+                <h1 class="mt-2 text-3xl font-semibold leading-tight text-[#111111] md:text-5xl">Selesaikan pembayaran</h1>
+                <p class="mt-4 max-w-2xl text-sm leading-6 text-[#6b7280]">
+                    Scan QRIS, lalu isi data pembayaran dan upload bukti pembayaran agar paket dapat diproses.
+                </p>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+                <div class="rounded-lg border border-[#111111] bg-[#111111] p-5 text-white">
+                    <p class="text-sm text-white/65">Paket Dipilih</p>
+                    <p id="selected-plan" class="mt-3 text-3xl font-semibold">Loading...</p>
+                    <p id="selected-duration" class="mt-2 text-sm text-white/65">-</p>
+                </div>
+
+                <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <p class="text-sm font-semibold text-[#111111]">QRIS</p>
+                        <span class="rounded-lg border border-[#d4d4d4] bg-white px-2.5 py-1 text-xs font-medium text-[#525252]">Scan</span>
+                    </div>
+                    <div class="rounded-lg border border-[#e5e7eb] bg-white p-3">
+                        <img class="mx-auto aspect-square w-full max-w-[220px] rounded-lg object-contain"
+                            src="/assets/image/qris.jpeg" alt="QRIS pembayaran Wakirim">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paket List -->
+            <div class="mt-6 border-t border-[#e5e7eb] pt-5">
+                <div class="mb-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2.5">
+                    <p class="text-sm font-semibold text-[#111111]">Deskripsi & Disclaimer</p>
+                    <p class="mt-1 text-sm leading-6 text-[#525252]">
+                        Paket otomatis mengikuti parameter link pembayaran Anda. Pastikan nominal transfer sesuai paket yang dipilih, simpan bukti pembayaran, dan jangan bagikan data akun ke pihak lain.
+                    </p>
+                </div>
+                <div id="paket-list" class="grid gap-3">
+                    <!-- Paket items will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-lg border border-[#e5e7eb] bg-white p-5 md:p-6" aria-label="Form pembayaran">
+            <div class="border-b border-[#e5e7eb] pb-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Konfirmasi</p>
+                <h2 class="mt-2 text-2xl font-semibold text-[#111111]">Data Pembayaran</h2>
+            </div>
+
+            <form id="payment-form" class="mt-5 grid gap-4" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="selected-paket" name="paket" value="">
+
+                <label class="block">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Email</span>
+                    <input
+                        class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        type="email" name="email" id="email" placeholder="nama@email.com" required>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Username</span>
+                    <input
+                        class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        type="text" name="username" id="username" placeholder="username Wakirim" required>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Catatan</span>
+                    <textarea
+                        class="min-h-28 w-full resize-none rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        name="catatan" id="catatan" placeholder="Tulis catatan tambahan jika ada"></textarea>
+                </label>
+
+                <label class="block">
+                    <span class="mb-1.5 block text-sm font-medium text-[#525252]">Bukti Pembayaran</span>
+                    <input
+                        class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm text-[#111111] file:mr-3 file:rounded-lg file:border-0 file:bg-[#111111] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]"
+                        type="file" name="bukti_pembayaran" id="bukti_pembayaran" accept="image/*" required>
+                    <p class="mt-1 text-xs text-[#737373]">Format: JPG, PNG. Maksimal 5MB.</p>
+                </label>
+
+                <button id="submit-btn" class="mt-2 w-full rounded-lg bg-[#111111] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]"
+                    type="submit" disabled>
+                    Pilih Paket Terlebih Dahulu
+                </button>
+
+                <p id="payment-success-info" class="hidden rounded-lg border border-green-200 bg-green-50 px-3 py-3 text-sm font-semibold leading-6 text-green-700">
+                    Pembayaran berhasil,silahkan cek email untuk detail akun anda.
+                </p>
+
+                <p id="payment-error-info" class="hidden rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm font-semibold leading-6 text-red-700">
+                </p>
+            </form>
+        </section>
+    </main>
+
+    <!-- Image Preview Modal -->
+    <div id="image-modal" class="fixed inset-0 z-50 hidden bg-black/80" aria-hidden="true">
+        <div class="flex h-full items-center justify-center p-4">
+            <button id="close-modal" class="absolute right-4 top-4 rounded-full bg-white p-2 text-black hover:bg-gray-200">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <img id="modal-image" class="max-h-[90vh] max-w-[90vw] rounded-lg object-contain" src="" alt="Preview">
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let selectedPaket = null;
+        let pakets = [];
+
+        // Format currency
+        function formatRupiah(number) {
+            return 'Rp' + number.toLocaleString('id-ID');
+        }
+
+        // Load paket from API
+        async function loadPakets() {
+            try {
+                const response = await fetch('/api/paket');
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    pakets = result.data;
+                    renderPaketList();
+
+                    // Auto-select from URL or first paket
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const planParam = urlParams.get('plan');
+
+                    if (planParam) {
+                        selectPaket(planParam);
+                    } else if (pakets.length > 0) {
+                        selectPaket(pakets[0].id);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load pakets:', error);
+                // Use fallback data
+                pakets = [
+                    { id: 'starter', nama: 'Starter', harga: 60000, durasi_bulan: 1 },
+                    { id: 'growth', nama: 'Growth', harga: 130000, durasi_bulan: 2 },
+                    { id: 'best-value', nama: 'Best Value', harga: 299000, durasi_bulan: 6 }
+                ];
+                renderPaketList();
+                if (pakets.length > 0) selectPaket(pakets[0].id);
+            }
+        }
+
+        // Render paket list
+        function renderPaketList() {
+            const container = document.getElementById('paket-list');
+            container.innerHTML = pakets.map(p => `
+                <button type="button" onclick="selectPaket('${p.id}')"
+                    class="paket-btn flex items-center justify-between rounded-lg border p-3 text-left transition-all hover:border-[#111111] ${selectedPaket?.id === p.id ? 'border-[#111111] bg-[#111111]/5' : 'border-[#e5e7eb]'}"
+                    data-paket-id="${p.id}">
+                    <div>
+                        <p class="font-semibold text-[#111111]">${p.nama}</p>
+                        <p class="text-sm text-[#737373]">${p.durasi_bulan} Bulan</p>
+                    </div>
+                    <p class="font-semibold text-[#111111]">${formatRupiah(p.harga)}</p>
+                </button>
+            `).join('');
+        }
+
+        // Select paket
+        function selectPaket(paketId) {
+            selectedPaket = pakets.find(p => p.id === paketId);
+            if (!selectedPaket) return;
+
+            // Update UI
+            document.getElementById('selected-plan').textContent = `${selectedPaket.nama} - ${formatRupiah(selectedPaket.harga)}`;
+            document.getElementById('selected-duration').textContent = `${selectedPaket.durasi_bulan} Bulan`;
+            document.getElementById('selected-paket').value = selectedPaket.id;
+
+            // Enable submit button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Bayar Sekarang';
+
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('plan', paketId);
+            window.history.replaceState({}, '', url);
+
+            // Update paket list selection
+            renderPaketList();
+        }
+
+        // Handle form submission
+        const paymentForm = document.getElementById('payment-form');
+        const paymentSuccessInfo = document.getElementById('payment-success-info');
+        const paymentErrorInfo = document.getElementById('payment-error-info');
+        const submitBtn = document.getElementById('submit-btn');
+
+        paymentForm?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (!paymentForm.checkValidity()) {
+                paymentForm.reportValidity();
+                return;
+            }
+
+            if (!selectedPaket) {
+                showError('Silakan pilih paket terlebih dahulu');
+                return;
+            }
+
+            // Hide previous messages
+            paymentSuccessInfo?.classList.add('hidden');
+            paymentErrorInfo?.classList.add('hidden');
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mengirim...';
+
+            try {
+                const formData = new FormData(paymentForm);
+
+                const response = await fetch('/api/payment', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    paymentSuccessInfo?.classList.remove('hidden');
+                    paymentForm.reset();
+                    submitBtn.textContent = 'Pembayaran Terkirim';
+                } else {
+                    showError(result.message || 'Terjadi kesalahan');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Bayar Sekarang';
+                }
+            } catch (error) {
+                showError('Gagal mengirim pembayaran. Silakan coba lagi.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Bayar Sekarang';
+            }
+        });
+
+        function showError(message) {
+            paymentErrorInfo.textContent = message;
+            paymentErrorInfo?.classList.remove('hidden');
+        }
+
+        // Image preview modal
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        // Close modal on background click
+        imageModal?.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                imageModal.classList.add('hidden');
+            }
+        });
+
+        closeModalBtn?.addEventListener('click', () => {
+            imageModal.classList.add('hidden');
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !imageModal.classList.contains('hidden')) {
+                imageModal.classList.add('hidden');
+            }
+        });
+
+        // Initialize
+        loadPakets();
+    </script>
+</body>
+
+</html>

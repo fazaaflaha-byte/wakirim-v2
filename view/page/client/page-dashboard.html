@@ -1,0 +1,280 @@
+<header class="mb-6 flex flex-col gap-4 border-b border-[#e5e7eb] pb-6 md:flex-row md:items-end md:justify-between">
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#737373]">Client Workspace</p>
+    <h1 class="m-0 text-[28px] font-semibold leading-tight text-[#111111]">Blast Dashboard</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">Pantau koneksi WhatsApp, data kontak, template pesan, dan progres pengiriman dari satu tampilan ringkas.</p>
+  </div>
+  <div class="flex items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#404040]">
+    <span class="h-2 w-2 rounded-full bg-[#111111]" aria-hidden="true"></span>
+    Ready to blast
+  </div>
+</header>
+
+<!-- Stats Cards -->
+<section class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Statistik Blast">
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex items-center justify-between">
+      <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#f5f5f5] text-[#111111]">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </span>
+      <span class="rounded-full border border-[#e5e7eb] px-2.5 py-1 text-xs font-medium text-[#525252]">Berhasil</span>
+    </div>
+    <p class="mb-1 text-3xl font-semibold text-[#111111]">1,248</p>
+    <p class="text-sm text-[#737373]">Total berhasil dikirim</p>
+  </article>
+
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex items-center justify-between">
+      <span class="grid h-9 w-9 place-items-center rounded-lg bg-[#f5f5f5] text-[#111111]">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </span>
+      <span class="rounded-full border border-[#e5e7eb] px-2.5 py-1 text-xs font-medium text-[#525252]">Gagal</span>
+    </div>
+    <p class="mb-1 text-3xl font-semibold text-[#111111]">52</p>
+    <p class="text-sm text-[#737373]">Total gagal terkirim</p>
+  </article>
+
+  <article class="rounded-lg border border-[#111111] bg-[#111111] p-5 text-white">
+    <div class="mb-5 flex items-center justify-between">
+      <span class="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-white">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </span>
+      <span class="rounded-full border border-white/15 px-2.5 py-1 text-xs font-medium text-white/75">Progress</span>
+    </div>
+    <p class="mb-1 text-3xl font-semibold">96%</p>
+    <p class="text-sm text-white/65">Tingkat keberhasilan</p>
+  </article>
+</section>
+
+<!-- Progress Bar Section -->
+<section class="mb-5 rounded-lg border border-[#e5e7eb] bg-white p-5" aria-label="Progress Pengiriman">
+  <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-[15px] font-semibold text-[#111111]">Progress Pengiriman</h2>
+      <p class="mt-1 text-sm text-[#737373]">Pengiriman berjalan 96% dari total target.</p>
+    </div>
+    <span class="text-sm font-medium text-[#404040]">1,300 / 1,300 Target</span>
+  </div>
+
+  <!-- Bar Progress -->
+  <div class="relative h-3 w-full overflow-hidden rounded-full bg-[#e5e5e5]">
+    <div class="h-full rounded-full bg-[#111111]" style="width: 96%"></div>
+  </div>
+
+  <!-- Progress Details -->
+  <div class="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+    <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+      <span class="text-[#737373]">Berhasil</span>
+      <span class="font-semibold text-[#111111]">1,248</span>
+    </div>
+    <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+      <span class="text-[#737373]">Gagal</span>
+      <span class="font-semibold text-[#111111]">52</span>
+    </div>
+    <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
+      <span class="text-[#737373]">Pending</span>
+      <span class="font-semibold text-[#111111]">0</span>
+    </div>
+  </div>
+</section>
+
+<!-- Action Cards -->
+<section class="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-label="Aksi">
+  <!-- Card QR Code - Connect WhatsApp -->
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold text-[#111111]">QR Code</h2>
+      <span class="rounded-full bg-[#f5f5f5] px-2.5 py-1 text-xs font-medium text-[#525252]">WhatsApp</span>
+    </div>
+    <div class="flex flex-col items-center justify-center">
+      <!-- QR Code Placeholder -->
+      <div class="mb-4 flex h-40 w-40 items-center justify-center rounded-lg border border-dashed border-[#d4d4d4] bg-[#fafafa]">
+        <div class="grid grid-cols-5 gap-1 p-4">
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-white"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+          <div class="h-4 w-4 rounded-sm bg-[#111111]"></div>
+        </div>
+      </div>
+      <p class="mb-4 text-center text-sm text-[#737373]">Scan QR Code dengan WhatsApp</p>
+      <button class="flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Connect WhatsApp
+      </button>
+    </div>
+  </article>
+
+  <!-- Card Pilih Data -->
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold text-[#111111]">Pilih Data</h2>
+      <span class="rounded-full bg-[#f5f5f5] px-2.5 py-1 text-xs font-medium text-[#525252]">CSV</span>
+    </div>
+    <div class="flex flex-col justify-center">
+      <div class="mb-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+        <div class="mb-3 flex items-center justify-between gap-4">
+          <span class="text-sm text-[#737373]">File dipilih</span>
+          <span class="truncate text-sm font-medium text-[#111111]">contacts.csv</span>
+        </div>
+        <div class="mb-3 flex items-center justify-between gap-4">
+          <span class="text-sm text-[#737373]">Jumlah data</span>
+          <span class="text-sm font-medium text-[#111111]">1,300 kontak</span>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <span class="text-sm text-[#737373]">Format</span>
+          <span class="rounded border border-[#d4d4d4] bg-white px-2 py-0.5 text-xs font-medium text-[#404040]">CSV</span>
+        </div>
+      </div>
+      <button class="flex w-full items-center justify-center gap-2 rounded-lg border border-[#111111] bg-white px-4 py-3 font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+        </svg>
+        Pilih Data
+      </button>
+    </div>
+  </article>
+</section>
+
+<!-- Log Pengiriman & Format Pesan -->
+<section class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2" aria-label="Log dan Template">
+  <!-- Card Kiri: Format Pesan Teks -->
+  <article class="rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex items-center justify-between gap-3">
+      <h2 class="text-[15px] font-semibold text-[#111111]">Format Pesan Teks</h2>
+      <button class="flex items-center gap-1.5 rounded-lg bg-[#111111] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Tambah
+      </button>
+    </div>
+
+    <div class="space-y-3">
+      <!-- Field 1 -->
+      <div class="relative">
+        <span class="absolute left-3 top-3 text-xs font-medium text-[#737373]">1</span>
+        <textarea class="w-full resize-none rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-8 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#111111]" rows="3" placeholder="Ketik pesan pertama..."></textarea>
+      </div>
+      <!-- Field 2 -->
+      <div class="relative">
+        <span class="absolute left-3 top-3 text-xs font-medium text-[#737373]">2</span>
+        <textarea class="w-full resize-none rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-8 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#111111]" rows="3" placeholder="Ketik pesan kedua..."></textarea>
+      </div>
+      <!-- Field 3 -->
+      <div class="relative">
+        <span class="absolute left-3 top-3 text-xs font-medium text-[#737373]">3</span>
+        <textarea class="w-full resize-none rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-8 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#111111]" rows="3" placeholder="Ketik pesan ketiga..."></textarea>
+      </div>
+      <!-- Field 4 -->
+      <div class="relative">
+        <span class="absolute left-3 top-3 text-xs font-medium text-[#737373]">4</span>
+        <textarea class="w-full resize-none rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-8 py-3 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#111111]" rows="3" placeholder="Ketik pesan keempat..."></textarea>
+      </div>
+    </div>
+
+    <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+      </svg>
+      Blast Sekarang
+    </button>
+  </article>
+
+  <!-- Card Kanan: Log Pengiriman -->
+  <article class="flex h-[500px] flex-col rounded-lg border border-[#e5e7eb] bg-white p-5">
+    <div class="mb-5 flex items-center justify-between">
+      <h2 class="text-[15px] font-semibold text-[#111111]">Log Pengiriman</h2>
+      <span class="text-xs font-medium text-[#737373]">4 log</span>
+    </div>
+    <div class="mb-4 flex-1 space-y-3 overflow-y-auto pr-1">
+      <!-- Log Item: Berhasil -->
+      <div class="flex items-start gap-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-3">
+        <span class="mt-0.5 grid h-6 w-6 place-items-center rounded-full bg-[#111111] text-white">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-[#111111]">Telah terkirim ke no 6281234567890</p>
+          <p class="text-xs text-[#737373]">2 detik yang lalu</p>
+        </div>
+      </div>
+
+      <!-- Log Item: Berhasil -->
+      <div class="flex items-start gap-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-3">
+        <span class="mt-0.5 grid h-6 w-6 place-items-center rounded-full bg-[#111111] text-white">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-[#111111]">Telah terkirim ke no 6289876543210</p>
+          <p class="text-xs text-[#737373]">5 detik yang lalu</p>
+        </div>
+      </div>
+
+      <!-- Log Item: Gagal -->
+      <div class="flex items-start gap-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-3">
+        <span class="mt-0.5 grid h-6 w-6 place-items-center rounded-full border border-[#d4d4d4] bg-white text-[#525252]">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-[#111111]">Gagal terkirim ke no 6285551234567</p>
+          <p class="text-xs text-[#737373]">Connection timeout - 10 detik yang lalu</p>
+        </div>
+      </div>
+
+      <!-- Log Item: Berhasil -->
+      <div class="flex items-start gap-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-3">
+        <span class="mt-0.5 grid h-6 w-6 place-items-center rounded-full bg-[#111111] text-white">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-[#111111]">Telah terkirim ke no 6287778889999</p>
+          <p class="text-xs text-[#737373]">15 detik yang lalu</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Log -->
+    <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-[#737373]">Total Log</span>
+        <span class="text-sm font-semibold text-[#111111]">4</span>
+      </div>
+    </div>
+  </article>
+</section>

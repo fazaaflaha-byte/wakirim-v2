@@ -1,0 +1,1915 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wakirim Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-[#f4f4f5] font-sans text-[#111111] antialiased">
+  <div class="flex">
+    <div class="sticky top-0 h-screen w-[280px] flex-shrink-0">
+      <div data-sidebar-src="/page/admin/sidebar.html"></div>
+    </div>
+
+    <main id="page-content" class="min-w-0 flex-1 p-5 md:p-9">
+    </main>
+  </div>
+
+  <script>
+    const sidebarMount = document.querySelector("[data-sidebar-src]");
+    const pageContent = document.getElementById("page-content");
+    const pages = ["manajemen-akun", "pembayaran", "keuangan", "pengaduan", "reset-kata-sandi"];
+
+    if (sidebarMount) {
+      fetch(sidebarMount.dataset.sidebarSrc)
+        .then((response) => {
+          if (!response.ok) throw new Error("Sidebar not found");
+          return response.text();
+        })
+        .then((html) => {
+          sidebarMount.innerHTML = html;
+          initNavigation();
+          loadPage(getInitialPage());
+        })
+        .catch(() => {
+          sidebarMount.innerHTML = "";
+        });
+    }
+
+    function getInitialPage() {
+      const hashPage = window.location.hash.substring(1);
+      if (pages.includes(hashPage)) {
+        window.history.replaceState({}, "", getPageUrl(hashPage));
+        return hashPage;
+      }
+
+      const page = new URLSearchParams(window.location.search).get("page");
+      return pages.includes(page) ? page : "manajemen-akun";
+    }
+
+    function getPageUrl(pageName) {
+      return pageName === "manajemen-akun" ? "/admin" : `/admin?page=${encodeURIComponent(pageName)}`;
+    }
+
+    function setActiveNavigation(targetPage) {
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        if (btn.dataset.page === targetPage) {
+          btn.classList.add("border-[#111111]", "bg-[#111111]", "text-white");
+          btn.classList.remove("border-transparent", "text-[#737373]", "hover:bg-[#f5f5f5]");
+          const iconSpan = btn.querySelector("span:first-child");
+          if (iconSpan) {
+            iconSpan.classList.add("bg-white", "text-[#111111]");
+            iconSpan.classList.remove("border-[#e5e7eb]", "bg-[#fafafa]", "text-[#737373]");
+          }
+        } else {
+          btn.classList.remove("border-[#111111]", "bg-[#111111]", "text-white");
+          btn.classList.add("border-transparent", "text-[#737373]", "hover:bg-[#f5f5f5]");
+          const iconSpan = btn.querySelector("span:first-child");
+          if (iconSpan) {
+            iconSpan.classList.remove("bg-white", "text-[#111111]");
+            iconSpan.classList.add("border-[#e5e7eb]", "bg-[#fafafa]", "text-[#737373]");
+          }
+        }
+      });
+    }
+
+    function loadPage(pageName) {
+      fetch(`/page/admin/page-${pageName}.html`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Page not found");
+          return response.text();
+        })
+        .then((html) => {
+          pageContent.innerHTML = html;
+          setActiveNavigation(pageName);
+          initPage(pageName);
+        })
+        .catch(() => {
+          pageContent.innerHTML = "<p class='rounded-lg border border-[#e5e7eb] bg-white p-4 text-sm font-medium text-[#111111]'>Page not found</p>";
+        });
+    }
+
+    function initPage(pageName) {
+      if (pageName === "manajemen-akun") {
+        initManajemenAkunPage();
+      } else if (pageName === "pembayaran") {
+        initPembayaranPage();
+      } else if (pageName === "keuangan") {
+        initKeuanganPage();
+      } else if (pageName === "pengaduan") {
+        initPengaduanPage();
+      } else if (pageName === "reset-kata-sandi") {
+        initResetKataSandiPage();
+      }
+    }
+
+    function initManajemenAkunPageLegacy() {
+      const upgradeCard = document.getElementById("upgrade-account-card");
+      const usernameText = document.getElementById("upgrade-account-username");
+      const currentExpiryText = document.getElementById("upgrade-current-expiry");
+      const newExpiryText = document.getElementById("upgrade-new-expiry");
+      const daysInput = document.getElementById("upgrade-days-input");
+      const closeButton = document.querySelector("[data-close-upgrade-account]");
+      const saveButton = document.querySelector("[data-save-upgrade-account]");
+      const changePasswordCard = document.getElementById("change-password-card");
+      const resetUsernameInput = document.getElementById("reset-username-input");
+      const resetEmailInput = document.getElementById("reset-email-input");
+      const resetPasswordInput = document.getElementById("reset-password-input");
+      const resetPasswordStatus = document.getElementById("reset-password-status");
+      const closeChangePasswordButton = document.querySelector("[data-close-change-password]");
+      const sendResetPasswordButton = document.querySelector("[data-send-reset-password]");
+      const manualAccountCard = document.getElementById("manual-account-card");
+      const openManualAccountButton = document.querySelector("[data-open-manual-account]");
+      const closeManualAccountButton = document.querySelector("[data-close-manual-account]");
+      const saveManualAccountButton = document.querySelector("[data-save-manual-account]");
+      const manualEmailInput = document.getElementById("manual-account-email");
+      const manualUsernameInput = document.getElementById("manual-account-username");
+      const manualPasswordInput = document.getElementById("manual-account-password");
+      const manualActiveDaysInput = document.getElementById("manual-account-active-days");
+      const manualTotalPaidInput = document.getElementById("manual-account-total-paid");
+      const manualAccountStatus = document.getElementById("manual-account-status");
+      const accountList = document.getElementById("account-list");
+      const totalAccountCount = document.getElementById("total-account-count");
+      let selectedRow = null;
+      let selectedPasswordRow = null;
+
+      if (!upgradeCard || !usernameText || !currentExpiryText || !newExpiryText || !daysInput) return;
+
+      const monthNames = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember"
+      ];
+
+      function parseIsoDate(dateValue) {
+        const parts = dateValue.split("-").map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+
+      function formatDisplayDate(date) {
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${day} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      }
+
+      function formatIsoDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function getAddedDays() {
+        const value = Number(String(daysInput.value || "").replace(/[^\d]/g, ""));
+        return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+      }
+
+      function getNewExpiryDate() {
+        if (!selectedRow) return null;
+        const expiryDate = parseIsoDate(selectedRow.dataset.expires);
+        expiryDate.setDate(expiryDate.getDate() + getAddedDays());
+        return expiryDate;
+      }
+
+      function updatePreview() {
+        const newExpiryDate = getNewExpiryDate();
+        newExpiryText.textContent = newExpiryDate ? formatDisplayDate(newExpiryDate) : "-";
+      }
+
+      function openUpgradeCard(button) {
+        selectedRow = button.closest("[data-account-row]");
+        if (!selectedRow) return;
+
+        const currentExpiryDate = parseIsoDate(selectedRow.dataset.expires);
+        usernameText.textContent = selectedRow.dataset.username || "-";
+        currentExpiryText.textContent = formatDisplayDate(currentExpiryDate);
+        if (getAddedDays() < 1) daysInput.value = "30";
+        updatePreview();
+        if (changePasswordCard) changePasswordCard.classList.add("hidden");
+        if (manualAccountCard) manualAccountCard.classList.add("hidden");
+        selectedPasswordRow = null;
+        upgradeCard.classList.remove("hidden");
+        upgradeCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        daysInput.focus();
+      }
+
+      function openChangePasswordCard(button) {
+        selectedPasswordRow = button.closest("[data-account-row]");
+        if (!selectedPasswordRow || !changePasswordCard || !resetUsernameInput || !resetEmailInput || !resetPasswordInput) return;
+
+        selectedRow = null;
+        upgradeCard.classList.add("hidden");
+        if (manualAccountCard) manualAccountCard.classList.add("hidden");
+        resetUsernameInput.value = selectedPasswordRow.dataset.username || "";
+        resetEmailInput.value = selectedPasswordRow.dataset.email || "";
+        resetPasswordInput.value = "";
+
+        if (resetPasswordStatus) {
+          resetPasswordStatus.textContent = "";
+          resetPasswordStatus.classList.add("hidden");
+        }
+
+        if (sendResetPasswordButton) {
+          sendResetPasswordButton.textContent = "Reset Kata Sandi Kirim via Email";
+        }
+
+        changePasswordCard.classList.remove("hidden");
+        changePasswordCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        resetPasswordInput.focus();
+      }
+
+      function bindAccountRowActions(row) {
+        const upgradeButton = row.querySelector("[data-upgrade-account]");
+        const changePasswordButton = row.querySelector("[data-change-password-account]");
+
+        if (upgradeButton) {
+          upgradeButton.addEventListener("click", () => openUpgradeCard(upgradeButton));
+        }
+
+        if (changePasswordButton) {
+          changePasswordButton.addEventListener("click", () => openChangePasswordCard(changePasswordButton));
+        }
+      }
+
+      document.querySelectorAll("[data-account-row]").forEach(bindAccountRowActions);
+
+      daysInput.addEventListener("input", updatePreview);
+
+      if (closeButton) {
+        closeButton.addEventListener("click", () => {
+          upgradeCard.classList.add("hidden");
+          selectedRow = null;
+        });
+      }
+
+      if (closeChangePasswordButton && changePasswordCard) {
+        closeChangePasswordButton.addEventListener("click", () => {
+          changePasswordCard.classList.add("hidden");
+          selectedPasswordRow = null;
+        });
+      }
+
+      function setManualAccountStatus(message, tone) {
+        if (!manualAccountStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-[#111111] bg-white text-[#111111]"
+          : "border-[#e5e7eb] bg-[#fafafa] text-[#525252]";
+
+        manualAccountStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        manualAccountStatus.textContent = message;
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[character]));
+      }
+
+      function getManualActiveDays() {
+        const value = Number(manualActiveDaysInput ? manualActiveDaysInput.value : 0);
+        return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+      }
+
+      function resetManualAccountForm() {
+        if (manualEmailInput) manualEmailInput.value = "";
+        if (manualUsernameInput) manualUsernameInput.value = "";
+        if (manualPasswordInput) manualPasswordInput.value = "";
+        if (manualActiveDaysInput) manualActiveDaysInput.value = "30";
+        if (manualTotalPaidInput) manualTotalPaidInput.value = "";
+        if (manualAccountStatus) {
+          manualAccountStatus.textContent = "";
+          manualAccountStatus.classList.add("hidden");
+        }
+      }
+
+      function incrementTotalAccountCount() {
+        if (!totalAccountCount) return;
+
+        const currentCount = Number(totalAccountCount.textContent);
+        if (Number.isFinite(currentCount)) {
+          totalAccountCount.textContent = currentCount + 1;
+        }
+      }
+
+      if (openManualAccountButton && manualAccountCard) {
+        openManualAccountButton.addEventListener("click", () => {
+          selectedRow = null;
+          selectedPasswordRow = null;
+          upgradeCard.classList.add("hidden");
+          if (changePasswordCard) changePasswordCard.classList.add("hidden");
+          resetManualAccountForm();
+          manualAccountCard.classList.remove("hidden");
+          manualAccountCard.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (manualEmailInput) manualEmailInput.focus();
+        });
+      }
+
+      if (closeManualAccountButton && manualAccountCard) {
+        closeManualAccountButton.addEventListener("click", () => {
+          manualAccountCard.classList.add("hidden");
+        });
+      }
+
+      if (saveManualAccountButton && accountList) {
+        saveManualAccountButton.addEventListener("click", () => {
+          const email = manualEmailInput ? manualEmailInput.value.trim() : "";
+          const username = manualUsernameInput ? manualUsernameInput.value.trim() : "";
+          const password = manualPasswordInput ? manualPasswordInput.value.trim() : "";
+          const activeDays = getManualActiveDays();
+          const totalPaid = manualTotalPaidInput ? manualTotalPaidInput.value.trim() : "";
+
+          if (!email || !username || !password || !activeDays || !totalPaid) {
+            setManualAccountStatus("Lengkapi email, username, password, masa aktif, dan total dibayar.", "error");
+            return;
+          }
+
+          const registeredDate = new Date();
+          const expiryDate = new Date();
+          expiryDate.setDate(expiryDate.getDate() + activeDays);
+
+          const row = document.createElement("div");
+          row.className = "grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_180px_130px_130px_100px_220px] lg:items-center";
+          row.setAttribute("data-account-row", "");
+          row.setAttribute("data-username", username);
+          row.setAttribute("data-email", email);
+          row.setAttribute("data-expires", formatIsoDate(expiryDate));
+          row.setAttribute("data-total-paid", totalPaid);
+          row.innerHTML = `
+            <p class="font-semibold text-[#111111]">${escapeHtml(username)}</p>
+            <p class="text-sm text-[#525252] truncate" title="${escapeHtml(email)}">${escapeHtml(email)}</p>
+            <p class="text-sm text-[#525252]">${formatDisplayDate(registeredDate)}</p>
+            <p class="text-sm text-[#525252]" data-account-expiry-text>${formatDisplayDate(expiryDate)}</p>
+            <p><span class="inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">Berjalan</span></p>
+            <div class="flex flex-wrap gap-2 lg:justify-end">
+              <button class="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-upgrade-account>Upgrade</button>
+              <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-change-password-account>Ubah Kata Sandi</button>
+            </div>
+          `;
+
+          accountList.prepend(row);
+          bindAccountRowActions(row);
+          incrementTotalAccountCount();
+          setManualAccountStatus(`Akun ${username} berhasil ditambahkan. Total dibayar ${totalPaid}.`, "neutral");
+
+          if (manualPasswordInput) manualPasswordInput.value = "";
+          saveManualAccountButton.textContent = "Akun Tersimpan";
+          setTimeout(() => {
+            saveManualAccountButton.textContent = "Simpan Akun & Kirim Email";
+          }, 900);
+        });
+      }
+
+      if (saveButton) {
+        saveButton.addEventListener("click", () => {
+          const newExpiryDate = getNewExpiryDate();
+          if (!selectedRow || !newExpiryDate || getAddedDays() < 1) return;
+
+          selectedRow.dataset.expires = formatIsoDate(newExpiryDate);
+          const rowExpiryText = selectedRow.querySelector("[data-account-expiry-text]");
+          if (rowExpiryText) rowExpiryText.textContent = formatDisplayDate(newExpiryDate);
+
+          currentExpiryText.textContent = formatDisplayDate(newExpiryDate);
+          upgradeCard.classList.add("hidden");
+          selectedRow = null;
+        });
+      }
+
+      if (sendResetPasswordButton && resetEmailInput && resetPasswordInput && resetPasswordStatus) {
+        sendResetPasswordButton.addEventListener("click", () => {
+          if (!selectedPasswordRow) return;
+
+          const email = resetEmailInput.value.trim();
+          const password = resetPasswordInput.value.trim();
+
+          resetPasswordStatus.classList.remove("hidden");
+
+          if (!email || !password) {
+            resetPasswordStatus.textContent = "Lengkapi email dan password baru terlebih dahulu.";
+            return;
+          }
+
+          selectedPasswordRow.dataset.email = email;
+          resetPasswordStatus.textContent = `Reset kata sandi untuk ${selectedPasswordRow.dataset.username} dikirim via email ke ${email}.`;
+        });
+      }
+
+      // Search account functionality
+      const searchInput = document.getElementById('search-account-email');
+      if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+          const searchValue = e.target.value.toLowerCase().trim();
+          document.querySelectorAll('[data-account-row]').forEach(function(row) {
+            const email = (row.getAttribute('data-email') || '').toLowerCase();
+            const username = (row.getAttribute('data-username') || '').toLowerCase();
+            if (email.includes(searchValue) || username.includes(searchValue)) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        });
+      }
+    }
+
+    function initManajemenAkunPage() {
+      const upgradeCard = document.getElementById("upgrade-account-card");
+      const usernameText = document.getElementById("upgrade-account-username");
+      const currentExpiryText = document.getElementById("upgrade-current-expiry");
+      const newExpiryText = document.getElementById("upgrade-new-expiry");
+      const daysInput = document.getElementById("upgrade-days-input");
+      const closeUpgradeButton = document.querySelector("[data-close-upgrade-account]");
+      const saveUpgradeButton = document.getElementById("save-upgrade-btn");
+      const changePasswordCard = document.getElementById("change-password-card");
+      const resetUsernameInput = document.getElementById("reset-username-input");
+      const resetEmailInput = document.getElementById("reset-email-input");
+      const resetPasswordInput = document.getElementById("reset-password-input");
+      const resetPasswordStatus = document.getElementById("reset-password-status");
+      const closeChangePasswordButton = document.querySelector("[data-close-change-password]");
+      const sendResetPasswordButton = document.getElementById("send-reset-password-btn");
+      const manualAccountCard = document.getElementById("manual-account-card");
+      const openManualAccountButton = document.querySelector("[data-open-manual-account]");
+      const closeManualAccountButton = document.querySelector("[data-close-manual-account]");
+      const saveManualAccountButton = document.getElementById("save-manual-account-btn");
+      const manualEmailInput = document.getElementById("manual-account-email");
+      const manualUsernameInput = document.getElementById("manual-account-username");
+      const manualPasswordInput = document.getElementById("manual-account-password");
+      const manualActiveDaysInput = document.getElementById("manual-account-active-days");
+      const manualTotalPaidInput = document.getElementById("manual-account-total-paid");
+      const manualAccountStatus = document.getElementById("manual-account-status");
+      const accountList = document.getElementById("account-list");
+      const totalAccountCount = document.getElementById("total-account-count");
+      const activeAccountCount = document.getElementById("aktif-account-count");
+      const expiredAccountCount = document.getElementById("berakhir-account-count");
+      const searchInput = document.getElementById("search-account-email");
+      const filterCards = document.querySelectorAll("[data-account-filter]");
+
+      let accounts = [];
+      let selectedAccount = null;
+      let accountFilter = "all";
+
+      if (!accountList) return;
+
+      const monthNames = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+
+      const monthIndex = {
+        jan: 0,
+        januari: 0,
+        feb: 1,
+        februari: 1,
+        mar: 2,
+        maret: 2,
+        apr: 3,
+        april: 3,
+        may: 4,
+        mei: 4,
+        jun: 5,
+        juni: 5,
+        jul: 6,
+        juli: 6,
+        aug: 7,
+        agt: 7,
+        agu: 7,
+        agustus: 7,
+        sep: 8,
+        september: 8,
+        oct: 9,
+        okt: 9,
+        oktober: 9,
+        nov: 10,
+        november: 10,
+        dec: 11,
+        des: 11,
+        desember: 11,
+      };
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        }[character]));
+      }
+
+      function parseAccountDate(value) {
+        if (!value) return null;
+
+        const nativeDate = new Date(value);
+        if (!Number.isNaN(nativeDate.getTime())) return nativeDate;
+
+        const match = String(value).trim().match(/^(\d{1,2})\s+([A-Za-zA-Z]+)\s+(\d{4})$/);
+        if (!match) return null;
+
+        const month = monthIndex[match[2].toLowerCase()];
+        if (month === undefined) return null;
+
+        return new Date(Number(match[3]), month, Number(match[1]));
+      }
+
+      function formatDisplayDate(date, fallback = "-") {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return fallback;
+
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${day} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      }
+
+      function normalizeStatus(status) {
+        const value = String(status || "").toLowerCase();
+        if (["habis", "berakhir", "expired"].includes(value)) return "habis";
+        if (["akan_habis", "akan habis", "akan_berakhir", "akan berakhir"].includes(value)) return "akan_habis";
+        if (["unverified", "unferivied", "unverified"].includes(value)) return "unverified";
+        return "berjalan";
+      }
+
+      function isAccountExpired(account) {
+        const expiryDate = parseAccountDate(account.tanggal_berakhir);
+        if (expiryDate) {
+          expiryDate.setHours(23, 59, 59, 999);
+          return expiryDate < new Date();
+        }
+
+        return normalizeStatus(account.status) === "habis";
+      }
+
+      function getStatusBadge(status) {
+        const normalized = normalizeStatus(status);
+        if (normalized === "habis") {
+          return '<span class="inline-block rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">Berakhir</span>';
+        }
+
+        if (normalized === "akan_habis") {
+          return '<span class="inline-block rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700">Akan Berakhir</span>';
+        }
+
+        if (normalized === "unverified") {
+          return '<span class="inline-block rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-700">Belum Verified</span>';
+        }
+
+        return '<span class="inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">Berjalan</span>';
+      }
+
+      function getFilteredAccounts() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        return accounts.filter((account) => {
+          if (accountFilter === "active" && isAccountExpired(account)) return false;
+          if (accountFilter === "expired" && !isAccountExpired(account)) return false;
+
+          if (!query) return true;
+
+          const haystack = `${account.username || ""} ${account.email || ""} ${account.status || ""}`.toLowerCase();
+          return haystack.includes(query);
+        });
+      }
+
+      function updateSummary() {
+        const expiredTotal = accounts.filter(isAccountExpired).length;
+        const activeTotal = accounts.length - expiredTotal;
+
+        if (totalAccountCount) totalAccountCount.textContent = accounts.length;
+        if (activeAccountCount) activeAccountCount.textContent = activeTotal;
+        if (expiredAccountCount) expiredAccountCount.textContent = expiredTotal;
+      }
+
+      function setActiveFilterCard() {
+        filterCards.forEach((card) => {
+          const isActive = card.getAttribute("data-account-filter") === accountFilter;
+          card.classList.toggle("ring-2", isActive);
+          card.classList.toggle("ring-[#111111]", isActive);
+          card.classList.toggle("ring-offset-2", isActive);
+        });
+      }
+
+      function renderAccountList() {
+        const rows = getFilteredAccounts();
+        updateSummary();
+        setActiveFilterCard();
+
+        if (rows.length === 0) {
+          accountList.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-[#737373]">
+              Tidak ada data akun.
+            </div>
+          `;
+          return;
+        }
+
+        accountList.innerHTML = rows.map((account) => {
+          const accountID = escapeHtml(account.uuid || account.username || "");
+          const username = escapeHtml(account.username || "-");
+          const email = escapeHtml(account.email || "-");
+          const registeredDate = parseAccountDate(account.tanggal_daftar);
+          const expiryDate = parseAccountDate(account.tanggal_berakhir);
+          const registeredText = escapeHtml(formatDisplayDate(registeredDate, account.tanggal_daftar || "-"));
+          const expiryText = escapeHtml(formatDisplayDate(expiryDate, account.tanggal_berakhir || "-"));
+
+          return `
+            <div class="grid gap-3 px-4 py-4 lg:grid lg:items-center" style="grid-template-columns:minmax(160px,1.2fr) minmax(220px,1.4fr) 150px 150px 130px 130px;" data-account-row data-account-id="${accountID}" data-username="${username}" data-email="${email}">
+              <p class="font-semibold text-[#111111]">${username}</p>
+              <p class="text-sm text-[#525252] truncate" title="${email}">${email}</p>
+              <p class="text-sm text-[#525252]">${registeredText}</p>
+              <p class="text-sm text-[#525252]" data-account-expiry-text>${expiryText}</p>
+              <p>${getStatusBadge(account.status)}</p>
+              <div class="flex justify-end">
+                <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-account="${accountID}">Delete User</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      async function loadAccounts() {
+        accountList.innerHTML = `
+          <div class="p-8 text-center text-sm font-medium text-[#737373]">
+            Memuat data akun...
+          </div>
+        `;
+
+        try {
+          const response = await fetch("/admin/api/accounts", {
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengambil data akun.");
+          }
+
+          accounts = Array.isArray(result.data) ? result.data : [];
+          renderAccountList();
+        } catch (error) {
+          accounts = [];
+          updateSummary();
+          accountList.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-red-700">
+              ${escapeHtml(error.message || "Gagal memuat data akun.")}
+            </div>
+          `;
+        }
+      }
+
+      function setManualAccountStatus(message, tone) {
+        if (!manualAccountStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-green-200 bg-green-50 text-green-700";
+
+        manualAccountStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        manualAccountStatus.textContent = message;
+      }
+
+      function setResetPasswordStatus(message, tone) {
+        if (!resetPasswordStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-green-200 bg-green-50 text-green-700";
+
+        resetPasswordStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        resetPasswordStatus.textContent = message;
+      }
+
+      function resetManualAccountForm() {
+        if (manualEmailInput) manualEmailInput.value = "";
+        if (manualUsernameInput) manualUsernameInput.value = "";
+        if (manualPasswordInput) manualPasswordInput.value = "";
+        if (manualActiveDaysInput) manualActiveDaysInput.value = "30";
+        if (manualTotalPaidInput) manualTotalPaidInput.value = "";
+        if (manualAccountStatus) manualAccountStatus.classList.add("hidden");
+      }
+
+      function parseRupiah(value) {
+        const digits = String(value || "").replace(/[^\d]/g, "");
+        return Number(digits || 0);
+      }
+
+      function formatNumberWithDots(value) {
+        const digits = String(value || "").replace(/[^\d]/g, "");
+        if (!digits) return "";
+        return Number(digits).toLocaleString("id-ID");
+      }
+
+      function parseFormattedNumber(value) {
+        const digits = String(value || "").replace(/[^\d]/g, "");
+        return Number(digits || 0);
+      }
+
+      function formatNumericInput(input) {
+        if (!input) return;
+        input.value = formatNumberWithDots(input.value);
+      }
+
+      function getSelectedAccountByID(accountID) {
+        return accounts.find((account) => String(account.uuid || account.username || "") === accountID);
+      }
+
+      function getUpgradePreviewDate() {
+        if (!selectedAccount) return null;
+
+        const currentExpiry = parseAccountDate(selectedAccount.tanggal_berakhir);
+        const baseDate = currentExpiry && currentExpiry > new Date() ? new Date(currentExpiry) : new Date();
+        const days = parseFormattedNumber(daysInput ? daysInput.value : "");
+        if (!Number.isFinite(days) || days < 1) return null;
+
+        baseDate.setDate(baseDate.getDate() + Math.floor(days));
+        return baseDate;
+      }
+
+      function updateUpgradePreview() {
+        if (!newExpiryText) return;
+        newExpiryText.textContent = formatDisplayDate(getUpgradePreviewDate());
+      }
+
+      function openUpgradeCard(account) {
+        selectedAccount = account;
+        if (!selectedAccount || !upgradeCard || !usernameText || !currentExpiryText || !daysInput) return;
+
+        usernameText.textContent = selectedAccount.username || "-";
+        currentExpiryText.textContent = formatDisplayDate(
+          parseAccountDate(selectedAccount.tanggal_berakhir),
+          selectedAccount.tanggal_berakhir || "-"
+        );
+        if (parseFormattedNumber(daysInput.value) < 1) daysInput.value = "30";
+        formatNumericInput(daysInput);
+        updateUpgradePreview();
+
+        changePasswordCard?.classList.add("hidden");
+        manualAccountCard?.classList.add("hidden");
+        upgradeCard.classList.remove("hidden");
+        upgradeCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        daysInput.focus();
+      }
+
+      function openChangePasswordCard(account) {
+        selectedAccount = account;
+        if (!selectedAccount || !changePasswordCard || !resetUsernameInput || !resetEmailInput || !resetPasswordInput) return;
+
+        upgradeCard?.classList.add("hidden");
+        manualAccountCard?.classList.add("hidden");
+        resetUsernameInput.value = selectedAccount.username || "";
+        resetEmailInput.value = selectedAccount.email || "";
+        resetPasswordInput.value = "";
+        resetPasswordStatus?.classList.add("hidden");
+
+        if (sendResetPasswordButton) {
+          sendResetPasswordButton.disabled = false;
+          sendResetPasswordButton.textContent = "Reset Kata Sandi Kirim via Email";
+        }
+
+        changePasswordCard.classList.remove("hidden");
+        changePasswordCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        resetPasswordInput.focus();
+      }
+
+      openManualAccountButton?.addEventListener("click", () => {
+        selectedAccount = null;
+        upgradeCard?.classList.add("hidden");
+        changePasswordCard?.classList.add("hidden");
+        resetManualAccountForm();
+        manualAccountCard?.classList.remove("hidden");
+        manualAccountCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+        manualEmailInput?.focus();
+      });
+
+      closeManualAccountButton?.addEventListener("click", () => {
+        manualAccountCard?.classList.add("hidden");
+      });
+
+      closeUpgradeButton?.addEventListener("click", () => {
+        upgradeCard?.classList.add("hidden");
+        selectedAccount = null;
+      });
+
+      closeChangePasswordButton?.addEventListener("click", () => {
+        changePasswordCard?.classList.add("hidden");
+        selectedAccount = null;
+      });
+
+      manualActiveDaysInput?.addEventListener("input", () => formatNumericInput(manualActiveDaysInput));
+      manualTotalPaidInput?.addEventListener("input", () => formatNumericInput(manualTotalPaidInput));
+      daysInput?.addEventListener("input", () => {
+        formatNumericInput(daysInput);
+        updateUpgradePreview();
+      });
+      searchInput?.addEventListener("input", renderAccountList);
+      filterCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          accountFilter = card.getAttribute("data-account-filter") || "all";
+          renderAccountList();
+        });
+      });
+
+      accountList.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        const deleteButton = target.closest("[data-delete-account]");
+        if (deleteButton) {
+          const account = getSelectedAccountByID(deleteButton.getAttribute("data-delete-account") || "");
+          if (account) deleteAccount(account, deleteButton);
+          return;
+        }
+
+        const upgradeButton = target.closest("[data-upgrade-account]");
+        if (upgradeButton) {
+          const account = getSelectedAccountByID(upgradeButton.getAttribute("data-upgrade-account") || "");
+          if (account) openUpgradeCard(account);
+          return;
+        }
+
+        const changePasswordButton = target.closest("[data-change-password-account]");
+        if (changePasswordButton) {
+          const account = getSelectedAccountByID(changePasswordButton.getAttribute("data-change-password-account") || "");
+          if (account) openChangePasswordCard(account);
+        }
+      });
+
+      async function deleteAccount(account, button) {
+        const username = account.username || "-";
+        const confirmed = window.confirm(`Hapus user ${username}? Data akun akan dihapus dari tabel akun.`);
+        if (!confirmed) return;
+
+        if (!account.uuid) {
+          window.alert("UUID akun tidak ditemukan, akun tidak bisa dihapus.");
+          return;
+        }
+
+        const originalText = button ? button.textContent : "";
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Menghapus...";
+        }
+
+        try {
+          const response = await fetch("/admin/api/accounts/delete", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              uuid: account.uuid,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal menghapus akun.");
+          }
+
+          await loadAccounts();
+        } catch (error) {
+          window.alert(error.message || "Gagal menghapus akun.");
+        } finally {
+          if (button) {
+            button.disabled = false;
+            button.textContent = originalText || "Delete User";
+          }
+        }
+      }
+
+      saveManualAccountButton?.addEventListener("click", async () => {
+        const email = manualEmailInput ? manualEmailInput.value.trim() : "";
+        const username = manualUsernameInput ? manualUsernameInput.value.trim() : "";
+        const password = manualPasswordInput ? manualPasswordInput.value.trim() : "";
+        const activeDays = parseFormattedNumber(manualActiveDaysInput ? manualActiveDaysInput.value : "");
+        const totalPaid = parseRupiah(manualTotalPaidInput ? manualTotalPaidInput.value : "");
+
+        if (!email || !username || !password || !Number.isFinite(activeDays) || activeDays < 1) {
+          setManualAccountStatus("Lengkapi email, username, password, dan masa aktif.", "error");
+          return;
+        }
+
+        saveManualAccountButton.disabled = true;
+        saveManualAccountButton.textContent = "Menyimpan...";
+
+        try {
+          const response = await fetch("/admin/api/accounts/manual", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              email,
+              username,
+              password,
+              active_days: Math.floor(activeDays),
+              total_paid: totalPaid,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal membuat akun.");
+          }
+
+          setManualAccountStatus("Akun berhasil dibuat, pembayaran otomatis terverifikasi, dan email akun dikirim.", "success");
+          resetManualAccountForm();
+          manualAccountCard?.classList.add("hidden");
+          await loadAccounts();
+        } catch (error) {
+          setManualAccountStatus(error.message || "Gagal membuat akun.", "error");
+        } finally {
+          saveManualAccountButton.disabled = false;
+          saveManualAccountButton.textContent = "Simpan Akun & Kirim Email";
+        }
+      });
+
+      saveUpgradeButton?.addEventListener("click", async () => {
+        if (!selectedAccount) return;
+
+        const days = parseFormattedNumber(daysInput ? daysInput.value : "");
+        if (!Number.isFinite(days) || days < 1) {
+          window.alert("Jumlah hari harus lebih dari 0.");
+          return;
+        }
+
+        saveUpgradeButton.disabled = true;
+        saveUpgradeButton.textContent = "Menyimpan...";
+
+        try {
+          const response = await fetch("/admin/api/accounts/upgrade", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              username: selectedAccount.username,
+              days: Math.floor(days),
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal memperpanjang akun.");
+          }
+
+          upgradeCard?.classList.add("hidden");
+          selectedAccount = null;
+          await loadAccounts();
+        } catch (error) {
+          window.alert(error.message || "Gagal memperpanjang akun.");
+        } finally {
+          saveUpgradeButton.disabled = false;
+          saveUpgradeButton.textContent = "Simpan";
+        }
+      });
+
+      sendResetPasswordButton?.addEventListener("click", async () => {
+        if (!selectedAccount || !resetPasswordInput || !resetEmailInput) return;
+
+        const newPassword = resetPasswordInput.value.trim();
+        const email = resetEmailInput.value.trim();
+
+        if (!email || !newPassword) {
+          setResetPasswordStatus("Lengkapi email dan password baru terlebih dahulu.", "error");
+          return;
+        }
+
+        sendResetPasswordButton.disabled = true;
+        sendResetPasswordButton.textContent = "Mengirim...";
+
+        try {
+          const response = await fetch("/admin/api/accounts/reset-password", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              username: selectedAccount.username,
+              email,
+              new_password: newPassword,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal reset kata sandi.");
+          }
+
+          setResetPasswordStatus("Password berhasil direset dan email diproses.", "success");
+          changePasswordCard?.classList.add("hidden");
+          selectedAccount = null;
+        } catch (error) {
+          setResetPasswordStatus(error.message || "Gagal reset kata sandi.", "error");
+        } finally {
+          sendResetPasswordButton.disabled = false;
+          sendResetPasswordButton.textContent = "Reset Kata Sandi Kirim via Email";
+        }
+      });
+
+      loadAccounts();
+    }
+
+    function initPembayaranPage() {
+      const verifyCard = document.getElementById('verify-payment-card');
+      const usernameInput = document.getElementById('verify-username-input');
+      const emailInput = document.getElementById('verify-email-input');
+      const passwordInput = document.getElementById('verify-password-input');
+      const verifyStatus = document.getElementById('verify-status');
+      const pendingCountEl = document.getElementById('pending-count');
+      const paymentList = document.getElementById('payment-list');
+      const searchEmailInput = document.getElementById('search-email-input');
+      const sendEmailBtn = document.getElementById('send-email-btn');
+      const imageModal = document.getElementById('image-modal');
+      const modalImage = document.getElementById('modal-image');
+      const closeImageModalButton = document.getElementById('close-modal');
+      const closeBtn = document.querySelector('[data-close-verify]');
+
+      let payments = [];
+      let selectedPayment = null;
+
+      if (!verifyCard || !usernameInput || !emailInput || !passwordInput || !verifyStatus || !paymentList) return;
+
+      const planLabels = {
+        starter: 'Starter',
+        growth: 'Growth',
+        'best-value': 'Best Value',
+      };
+
+      function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+        }[character]));
+      }
+
+      function formatRupiah(value) {
+        const number = Number(value || 0);
+        return `Rp${number.toLocaleString('id-ID')}`;
+      }
+
+      function normalizeStatus(status) {
+        const value = String(status || '').toLowerCase();
+        if (value === 'verified' || value === 'terverifikasi') return 'verified';
+        return 'pending';
+      }
+
+      function getStatusBadge(status) {
+        if (normalizeStatus(status) === 'verified') {
+          return '<span class="inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">Terverifikasi</span>';
+        }
+
+        return '<span class="inline-block rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-700">Menunggu</span>';
+      }
+
+      function getFilteredPayments() {
+        const query = searchEmailInput ? searchEmailInput.value.toLowerCase().trim() : '';
+        if (!query) return payments;
+
+        return payments.filter((payment) => {
+          const email = String(payment.email || '').toLowerCase();
+          const username = String(payment.username || '').toLowerCase();
+          return email.includes(query) || username.includes(query);
+        });
+      }
+
+      function updatePendingCountFromRows() {
+        const pending = payments.filter((payment) => normalizeStatus(payment.status) === 'pending').length;
+        if (pendingCountEl) pendingCountEl.textContent = pending;
+      }
+
+      function renderPaymentList() {
+        const rows = getFilteredPayments();
+
+        updatePendingCountFromRows();
+
+        if (rows.length === 0) {
+          paymentList.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-[#737373]">
+              Tidak ada data pembayaran.
+            </div>
+          `;
+          return;
+        }
+
+        paymentList.innerHTML = rows.map((payment) => {
+          const paymentID = escapeHtml(payment.id);
+          const username = escapeHtml(payment.username || '-');
+          const email = escapeHtml(payment.email || '-');
+          const paket = escapeHtml(planLabels[payment.paket] || payment.paket || '-');
+          const totalHarga = formatRupiah(payment.total_harga);
+          const tanggalBayar = escapeHtml(payment.tanggal_bayar || '-');
+          const catatan = escapeHtml(payment.catatan || '-');
+          const isPending = normalizeStatus(payment.status) === 'pending';
+
+          return `
+            <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(120px,1fr)_180px_100px_120px_130px_130px_100px_190px] lg:items-center" data-payment-row data-payment-id="${paymentID}" data-email="${email}" data-username="${username}">
+              <p class="font-semibold text-[#111111]">${username}</p>
+              <p class="text-sm text-[#525252] truncate" title="${email}">${email}</p>
+              <p class="text-sm text-[#525252]">${paket}</p>
+              <p class="text-sm font-semibold text-[#111111]">${totalHarga}</p>
+              <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-proof="${paymentID}">
+                Lihat Bukti
+              </button>
+              <p class="text-sm text-[#525252]">${tanggalBayar}</p>
+              <p class="text-sm text-[#737373] truncate" title="${catatan}">${catatan}</p>
+              <div class="flex justify-end gap-2">
+                ${isPending
+                  ? `<button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-payment="${paymentID}">Verifikasi</button>`
+                  : '<button class="cursor-not-allowed rounded-lg bg-[#e5e7eb] px-3 py-2 text-sm font-semibold text-[#737373]" type="button" disabled>Terverifikasi</button>'}
+                <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-payment="${paymentID}">Delete</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function setVerifyStatus(message, tone) {
+        const toneClass = tone === 'error'
+          ? 'border-red-200 bg-red-50 text-red-700'
+          : 'border-green-200 bg-green-50 text-green-700';
+
+        verifyStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        verifyStatus.textContent = message;
+      }
+
+      function openVerifyCard(payment) {
+        selectedPayment = payment;
+        usernameInput.value = payment.username || '';
+        emailInput.value = payment.email || '';
+        passwordInput.value = '';
+        verifyStatus.textContent = '';
+        verifyStatus.classList.add('hidden');
+        verifyCard.classList.remove('hidden');
+        verifyCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        passwordInput.focus();
+      }
+
+      function openProof(payment) {
+        if (!payment.bukti_pembayaran || !imageModal || !modalImage) {
+          window.alert('Bukti pembayaran tidak tersedia.');
+          return;
+        }
+
+        const proof = String(payment.bukti_pembayaran);
+        modalImage.src = proof.startsWith('data:') ? proof : `data:image/jpeg;base64,${proof}`;
+        imageModal.classList.remove('hidden');
+      }
+
+      async function loadPayments() {
+        paymentList.innerHTML = `
+          <div class="p-8 text-center text-sm font-medium text-[#737373]">
+            Memuat data pembayaran...
+          </div>
+        `;
+
+        try {
+          const response = await fetch('/admin/api/payments', {
+            credentials: 'same-origin',
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Gagal mengambil data pembayaran.');
+          }
+
+          payments = Array.isArray(result.data) ? result.data : [];
+          renderPaymentList();
+        } catch (error) {
+          payments = [];
+          if (pendingCountEl) pendingCountEl.textContent = '0';
+          paymentList.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-red-700">
+              ${escapeHtml(error.message || 'Gagal memuat data pembayaran.')}
+            </div>
+          `;
+        }
+      }
+
+      closeBtn?.addEventListener('click', () => {
+        verifyCard.classList.add('hidden');
+        selectedPayment = null;
+      });
+
+      searchEmailInput?.addEventListener('input', renderPaymentList);
+
+      paymentList.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        const proofButton = target.closest('[data-view-proof]');
+        if (proofButton) {
+          const payment = payments.find((item) => item.id === proofButton.getAttribute('data-view-proof'));
+          if (payment) openProof(payment);
+          return;
+        }
+
+        const verifyButton = target.closest('[data-verify-payment]');
+        if (verifyButton) {
+          const payment = payments.find((item) => item.id === verifyButton.getAttribute('data-verify-payment'));
+          if (payment) openVerifyCard(payment);
+          return;
+        }
+
+        const deleteButton = target.closest('[data-delete-payment]');
+        if (deleteButton) {
+          const payment = payments.find((item) => item.id === deleteButton.getAttribute('data-delete-payment'));
+          if (payment) deletePayment(payment, deleteButton);
+        }
+      });
+
+      async function deletePayment(payment, button) {
+        const username = payment.username || '-';
+        const confirmed = window.confirm(`Hapus pembayaran ${username}? Data payment dan akun terkait akan dihapus.`);
+        if (!confirmed) return;
+
+        const originalText = button ? button.textContent : '';
+        if (button) {
+          button.disabled = true;
+          button.textContent = 'Menghapus...';
+        }
+
+        try {
+          const response = await fetch('/admin/api/payments/delete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              payment_id: payment.id,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Gagal menghapus pembayaran.');
+          }
+
+          if (selectedPayment && selectedPayment.id === payment.id) {
+            verifyCard.classList.add('hidden');
+            selectedPayment = null;
+          }
+
+          await loadPayments();
+        } catch (error) {
+          window.alert(error.message || 'Gagal menghapus pembayaran.');
+        } finally {
+          if (button) {
+            button.disabled = false;
+            button.textContent = originalText || 'Delete';
+          }
+        }
+      }
+
+      closeImageModalButton?.addEventListener('click', () => {
+        imageModal?.classList.add('hidden');
+        if (modalImage) modalImage.src = '';
+      });
+
+      imageModal?.addEventListener('click', (event) => {
+        if (event.target === imageModal) {
+          imageModal.classList.add('hidden');
+          if (modalImage) modalImage.src = '';
+        }
+      });
+
+      sendEmailBtn?.addEventListener('click', async () => {
+        if (!selectedPayment) return;
+
+        const accountPassword = passwordInput.value.trim();
+        if (!accountPassword) {
+          setVerifyStatus('Password akun harus diisi untuk verifikasi.', 'error');
+          return;
+        }
+
+        sendEmailBtn.disabled = true;
+        sendEmailBtn.textContent = 'Memproses...';
+
+        try {
+          const response = await fetch('/admin/api/payments/verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              payment_id: selectedPayment.id,
+              account_password: accountPassword,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Gagal memverifikasi pembayaran.');
+          }
+
+          setVerifyStatus('Pembayaran berhasil diverifikasi dan email akun dikirim.', 'success');
+          await loadPayments();
+          setTimeout(() => {
+            verifyCard.classList.add('hidden');
+            selectedPayment = null;
+          }, 900);
+        } catch (error) {
+          setVerifyStatus(error.message || 'Gagal memverifikasi pembayaran.', 'error');
+        } finally {
+          sendEmailBtn.disabled = false;
+          sendEmailBtn.textContent = 'Verifikasi & Kirim Email';
+        }
+      });
+
+      loadPayments();
+    }
+
+    function initKeuanganPage() {
+      const currentMonthEl = document.getElementById("current-month");
+      const incomeTodayEl = document.getElementById("income-today");
+      const incomeThisWeekEl = document.getElementById("income-this-week");
+      const incomeThisMonthEl = document.getElementById("income-this-month");
+      const totalAllEl = document.getElementById("total-all");
+      const grossIncomeEl = document.getElementById("gross-income");
+      const bestSellingPaketEl = document.getElementById("best-selling-paket");
+      const totalTransactionsEl = document.getElementById("total-transactions");
+      const pendingTransactionsEl = document.getElementById("pending-transactions");
+      const pendingIncomeEl = document.getElementById("pending-income");
+      const filteredIncomeEl = document.getElementById("filtered-income");
+      const filteredDateDisplayEl = document.getElementById("filtered-date-display");
+      const filterDateInput = document.getElementById("filter-date");
+      const searchInput = document.getElementById("finance-search-input");
+      const statusFilter = document.getElementById("finance-status-filter");
+      const dateFromInput = document.getElementById("finance-date-from");
+      const dateToInput = document.getElementById("finance-date-to");
+      const refreshButton = document.getElementById("finance-refresh-btn");
+      const paymentTotalEl = document.getElementById("finance-payment-total");
+      const paymentListEl = document.getElementById("finance-payment-list");
+
+      if (!paymentListEl) return;
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        }[character]));
+      }
+
+      function formatRupiah(value) {
+        const number = Number(value || 0);
+        return `Rp${number.toLocaleString("id-ID")}`;
+      }
+
+      function normalizeStatus(status) {
+        const value = String(status || "").toLowerCase();
+        return value === "verified" || value === "terverifikasi" ? "verified" : "pending";
+      }
+
+      function statusBadge(status) {
+        if (normalizeStatus(status) === "verified") {
+          return '<span class="inline-block rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">Terverifikasi</span>';
+        }
+        return '<span class="inline-block rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-700">Pending</span>';
+      }
+
+      function setCurrentMonth() {
+        if (!currentMonthEl) return;
+        const now = new Date();
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        currentMonthEl.textContent = `${months[now.getMonth()]} ${now.getFullYear()}`;
+      }
+
+      function setSummary(data) {
+        if (incomeTodayEl) incomeTodayEl.textContent = formatRupiah(data.income_today);
+        if (incomeThisWeekEl) incomeThisWeekEl.textContent = formatRupiah(data.income_this_week);
+        if (incomeThisMonthEl) incomeThisMonthEl.textContent = formatRupiah(data.income_this_month);
+        if (totalAllEl) totalAllEl.textContent = formatRupiah(data.total_income);
+        if (grossIncomeEl) grossIncomeEl.textContent = formatRupiah(data.gross_income);
+        if (pendingIncomeEl) pendingIncomeEl.textContent = formatRupiah(data.pending_income);
+        if (totalTransactionsEl) totalTransactionsEl.textContent = `${Number(data.total_transactions || 0)} transaksi`;
+        if (pendingTransactionsEl) pendingTransactionsEl.textContent = `${Number(data.pending_transactions || 0)} transaksi`;
+        if (bestSellingPaketEl) {
+          bestSellingPaketEl.textContent = data.best_selling_paket
+            ? `${data.best_selling_paket} (${Number(data.best_selling_paket_count || 0)}x)`
+            : "-";
+        }
+      }
+
+      async function loadFinancialStats() {
+        try {
+          const response = await fetch("/admin/api/financial/stats", {
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal memuat statistik keuangan.");
+          }
+
+          setSummary(result.data || {});
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      async function loadIncomeByDate(date) {
+        if (!date || !filteredIncomeEl || !filteredDateDisplayEl) return;
+
+        try {
+          const response = await fetch(`/admin/api/financial/income-by-date?date=${encodeURIComponent(date)}`, {
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal memuat pendapatan harian.");
+          }
+
+          filteredIncomeEl.textContent = formatRupiah(result.data?.income || 0);
+          filteredDateDisplayEl.textContent = result.data?.date || date;
+        } catch (error) {
+          filteredIncomeEl.textContent = formatRupiah(0);
+          filteredDateDisplayEl.textContent = "Gagal memuat data tanggal";
+          console.error(error);
+        }
+      }
+
+      function renderPaymentRows(rows) {
+        if (paymentTotalEl) {
+          paymentTotalEl.textContent = `${rows.length} baris data`;
+        }
+
+        if (!rows.length) {
+          paymentListEl.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-[#737373]">
+              Tidak ada data payment untuk filter yang dipilih.
+            </div>
+          `;
+          return;
+        }
+
+        paymentListEl.innerHTML = rows.map((row) => {
+          const id = escapeHtml(row.id || "-");
+          const username = escapeHtml(row.username || "-");
+          const email = escapeHtml(row.email || "-");
+          const paket = escapeHtml(row.paket_display || row.paket || "-");
+          const total = formatRupiah(row.total_harga || 0);
+          const tanggalBayar = escapeHtml(row.tanggal_bayar || "-");
+          const catatan = escapeHtml(row.catatan || "-");
+
+          return `
+            <div class="grid gap-3 px-4 py-4 text-sm text-[#525252] lg:grid-cols-[140px_180px_110px_140px_170px_1fr_140px] lg:items-center">
+              <p class="truncate font-medium text-[#111111]" title="${id}">${id}</p>
+              <div class="min-w-0">
+                <p class="truncate font-semibold text-[#111111]" title="${username}">${username}</p>
+                <p class="truncate text-xs text-[#737373]" title="${email}">${email}</p>
+              </div>
+              <p class="text-[#525252]">${paket}</p>
+              <p class="font-semibold text-[#111111]">${total}</p>
+              <p>${tanggalBayar}</p>
+              <p class="truncate" title="${catatan}">${catatan}</p>
+              <p>${statusBadge(row.status)}</p>
+            </div>
+          `;
+        }).join("");
+      }
+
+      async function loadFinancialPaymentRows() {
+        paymentListEl.innerHTML = `
+          <div class="p-8 text-center text-sm font-medium text-[#737373]">
+            Memuat data payment...
+          </div>
+        `;
+
+        const params = new URLSearchParams();
+        params.set("limit", "300");
+        params.set("status", statusFilter?.value || "all");
+
+        const keyword = searchInput?.value.trim();
+        if (keyword) params.set("search", keyword);
+
+        if (dateFromInput?.value) params.set("date_from", dateFromInput.value);
+        if (dateToInput?.value) params.set("date_to", dateToInput.value);
+
+        try {
+          const response = await fetch(`/admin/api/financial/payments?${params.toString()}`, {
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal memuat detail payment.");
+          }
+
+          renderPaymentRows(Array.isArray(result.data) ? result.data : []);
+        } catch (error) {
+          paymentListEl.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-red-700">
+              ${escapeHtml(error.message || "Gagal memuat data payment.")}
+            </div>
+          `;
+        }
+      }
+
+      let searchDebounce = null;
+      searchInput?.addEventListener("input", () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+          loadFinancialPaymentRows();
+        }, 350);
+      });
+
+      statusFilter?.addEventListener("change", loadFinancialPaymentRows);
+      dateFromInput?.addEventListener("change", loadFinancialPaymentRows);
+      dateToInput?.addEventListener("change", loadFinancialPaymentRows);
+      refreshButton?.addEventListener("click", loadFinancialPaymentRows);
+
+      filterDateInput?.addEventListener("change", (event) => {
+        const date = event.target.value;
+        if (date) loadIncomeByDate(date);
+      });
+
+      const today = new Date();
+      const isoToday = today.toISOString().split("T")[0];
+      if (filterDateInput) filterDateInput.value = isoToday;
+      if (dateToInput) dateToInput.value = isoToday;
+      if (dateFromInput) {
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        dateFromInput.value = firstDay.toISOString().split("T")[0];
+      }
+
+      setCurrentMonth();
+      loadFinancialStats();
+      loadIncomeByDate(isoToday);
+      loadFinancialPaymentRows();
+    }
+
+    function initPengaduanPage() {
+      const detailCard = document.getElementById("complaint-detail-card");
+      const detailTitle = document.getElementById("complaint-detail-title");
+      const detailMeta = document.getElementById("complaint-detail-meta");
+      const detailMessage = document.getElementById("complaint-detail-message");
+      const replyCard = document.getElementById("complaint-reply-card");
+      const replyUsername = document.getElementById("complaint-reply-username");
+      const replyEmail = document.getElementById("complaint-reply-email");
+      const replyMessage = document.getElementById("complaint-reply-message");
+      const replyStatus = document.getElementById("complaint-reply-status");
+      const searchInput = document.getElementById("search-complaint-input");
+      const openCount = document.getElementById("open-complaint-count");
+      const closedCount = document.getElementById("closed-complaint-count");
+      const totalBadge = document.getElementById("complaint-total-badge");
+      const closeDetailButton = document.querySelector("[data-close-complaint-detail]");
+      const closeReplyButton = document.querySelector("[data-close-complaint-reply]");
+      const sendReplyButton = document.querySelector("[data-send-complaint-reply]");
+      let selectedRow = null;
+
+      function getRows() {
+        return Array.from(document.querySelectorAll("[data-complaint-row]"));
+      }
+
+      function setStatusMessage(message, tone) {
+        if (!replyStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-[#111111] bg-white text-[#111111]"
+          : "border-[#e5e7eb] bg-[#fafafa] text-[#525252]";
+
+        replyStatus.className = `rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        replyStatus.textContent = message;
+      }
+
+      function setBadgeReplied(row) {
+        const badge = row.querySelector("[data-complaint-status]");
+        row.dataset.status = "Ditanggapi";
+
+        if (badge) {
+          badge.textContent = "Ditanggapi";
+          badge.className = "w-fit rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#111111]";
+        }
+      }
+
+      function updateCounts() {
+        const rows = getRows();
+        const closed = rows.filter((row) => row.dataset.status === "Ditanggapi").length;
+        const open = rows.length - closed;
+
+        if (openCount) openCount.textContent = open;
+        if (closedCount) closedCount.textContent = closed;
+        if (totalBadge) totalBadge.textContent = `${rows.length} tiket`;
+      }
+
+      function showDetail(row) {
+        if (!detailCard || !detailTitle || !detailMeta || !detailMessage) return;
+
+        if (replyCard) replyCard.classList.add("hidden");
+
+        detailTitle.textContent = row.dataset.title || "-";
+        detailMeta.textContent = `${row.dataset.user || "-"} | ${row.dataset.email || "-"} | ${row.dataset.date || "-"} | ${row.dataset.status || "-"}`;
+        detailMessage.textContent = row.dataset.message || "-";
+        detailCard.classList.remove("hidden");
+        detailCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function showReply(row) {
+        if (!replyCard || !replyUsername || !replyEmail || !replyMessage) return;
+
+        selectedRow = row;
+        if (detailCard) detailCard.classList.add("hidden");
+
+        replyUsername.value = row.dataset.user || "";
+        replyEmail.value = row.dataset.email || "";
+        replyMessage.value = "";
+
+        if (replyStatus) {
+          replyStatus.textContent = "";
+          replyStatus.classList.add("hidden");
+        }
+
+        if (sendReplyButton) {
+          sendReplyButton.disabled = false;
+          sendReplyButton.textContent = "Kirim Balasan via Email";
+        }
+
+        replyCard.classList.remove("hidden");
+        replyCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        replyMessage.focus();
+      }
+
+      getRows().forEach((row) => {
+        const detailButton = row.querySelector("[data-complaint-detail]");
+        const replyButton = row.querySelector("[data-complaint-reply]");
+
+        if (detailButton) {
+          detailButton.addEventListener("click", () => showDetail(row));
+        }
+
+        if (replyButton) {
+          replyButton.addEventListener("click", () => showReply(row));
+        }
+      });
+
+      if (closeDetailButton && detailCard) {
+        closeDetailButton.addEventListener("click", () => {
+          detailCard.classList.add("hidden");
+        });
+      }
+
+      if (closeReplyButton && replyCard) {
+        closeReplyButton.addEventListener("click", () => {
+          replyCard.classList.add("hidden");
+          selectedRow = null;
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener("input", () => {
+          const query = searchInput.value.toLowerCase().trim();
+
+          getRows().forEach((row) => {
+            const haystack = `${row.dataset.title || ""} ${row.dataset.user || ""} ${row.dataset.email || ""}`.toLowerCase();
+            row.style.display = haystack.includes(query) ? "" : "none";
+          });
+        });
+      }
+
+      if (sendReplyButton && replyMessage) {
+        sendReplyButton.addEventListener("click", () => {
+          if (!selectedRow) return;
+
+          const message = replyMessage.value.trim();
+          const email = replyEmail ? replyEmail.value.trim() : "";
+          const targetRow = selectedRow;
+
+          if (!message) {
+            setStatusMessage("Balasan tidak boleh kosong.", "error");
+            return;
+          }
+
+          sendReplyButton.disabled = true;
+          sendReplyButton.textContent = "Mengirim...";
+          setStatusMessage(`Mengirim balasan ke ${email}...`, "neutral");
+
+          setTimeout(() => {
+            setBadgeReplied(targetRow);
+            updateCounts();
+            setStatusMessage(`Balasan berhasil dikirim ke ${email}.`, "neutral");
+            sendReplyButton.disabled = false;
+            sendReplyButton.textContent = "Balasan Terkirim";
+          }, 700);
+        });
+      }
+
+      updateCounts();
+    }
+
+    function initResetKataSandiPage() {
+      const card = document.getElementById("send-new-password-card");
+      const usernameInput = document.getElementById("new-password-username");
+      const emailInput = document.getElementById("new-password-email");
+      const registeredInput = document.getElementById("new-password-registered");
+      const passwordInput = document.getElementById("new-password-input");
+      const statusText = document.getElementById("new-password-status");
+      const closeButton = document.querySelector("[data-close-new-password]");
+      const sendButton = document.querySelector("[data-send-new-password]");
+      const searchInput = document.getElementById("search-reset-request");
+      const totalBadge = document.getElementById("reset-request-total");
+      let selectedRow = null;
+
+      function getRows() {
+        return Array.from(document.querySelectorAll("[data-reset-row]"));
+      }
+
+      function showStatus(message, tone) {
+        if (!statusText) return;
+
+        const toneClass = tone === "error"
+          ? "border-[#111111] bg-white text-[#111111]"
+          : "border-[#e5e7eb] bg-[#fafafa] text-[#525252]";
+
+        statusText.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        statusText.textContent = message;
+      }
+
+      function updateTotal() {
+        if (totalBadge) {
+          totalBadge.textContent = `${getRows().length} request`;
+        }
+      }
+
+      document.querySelectorAll("[data-change-request-password]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedRow = button.closest("[data-reset-row]");
+          if (!selectedRow || !card || !usernameInput || !emailInput || !registeredInput || !passwordInput) return;
+
+          usernameInput.value = selectedRow.dataset.username || "";
+          emailInput.value = selectedRow.dataset.email || "";
+          registeredInput.value = selectedRow.dataset.registered || "";
+          passwordInput.value = "";
+
+          if (statusText) {
+            statusText.textContent = "";
+            statusText.classList.add("hidden");
+          }
+
+          if (sendButton) {
+            sendButton.disabled = false;
+            sendButton.textContent = "Kirim Password Baru via Email";
+          }
+
+          card.classList.remove("hidden");
+          card.scrollIntoView({ behavior: "smooth", block: "start" });
+          passwordInput.focus();
+        });
+      });
+
+      if (closeButton && card) {
+        closeButton.addEventListener("click", () => {
+          card.classList.add("hidden");
+          selectedRow = null;
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener("input", () => {
+          const query = searchInput.value.toLowerCase().trim();
+
+          getRows().forEach((row) => {
+            const haystack = `${row.dataset.username || ""} ${row.dataset.email || ""}`.toLowerCase();
+            row.style.display = haystack.includes(query) ? "" : "none";
+          });
+        });
+      }
+
+      if (sendButton && passwordInput && emailInput) {
+        sendButton.addEventListener("click", () => {
+          if (!selectedRow) return;
+
+          const password = passwordInput.value.trim();
+          const email = emailInput.value.trim();
+          const username = usernameInput ? usernameInput.value.trim() : "";
+          const targetRow = selectedRow;
+
+          if (!password) {
+            showStatus("Password baru harus diisi terlebih dahulu.", "error");
+            return;
+          }
+
+          sendButton.disabled = true;
+          sendButton.textContent = "Mengirim...";
+          showStatus(`Mengirim password baru untuk ${username} ke ${email}...`, "neutral");
+
+          setTimeout(() => {
+            const rowStatus = targetRow.querySelector("[data-password-change-status]");
+            if (rowStatus) {
+              rowStatus.textContent = "Telah Dirubah";
+              rowStatus.className = "w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white";
+            }
+
+            showStatus(`Password baru berhasil dikirim via email ke ${email}.`, "neutral");
+            sendButton.disabled = false;
+            sendButton.textContent = "Terkirim via Email";
+          }, 700);
+        });
+      }
+
+      const upgradeRequestList = document.getElementById("upgrade-request-list");
+      if (upgradeRequestList) {
+        const renderUpgradeEmptyState = () => {
+          const rows = upgradeRequestList.querySelectorAll("[data-upgrade-request-row]");
+          const existingEmptyState = upgradeRequestList.querySelector("[data-upgrade-empty-state]");
+
+          if (rows.length > 0) {
+            existingEmptyState?.remove();
+            return;
+          }
+
+          if (!existingEmptyState) {
+            upgradeRequestList.innerHTML = `
+              <div class="p-8 text-center text-sm font-medium text-[#737373]" data-upgrade-empty-state>
+                Tidak ada permintaan upgrade.
+              </div>
+            `;
+          }
+        };
+
+        upgradeRequestList.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+
+          const proofButton = target.closest("[data-view-upgrade-proof]");
+          if (proofButton) {
+            const username = proofButton.getAttribute("data-view-upgrade-proof") || "user";
+            window.alert(`Preview bukti pembayaran untuk ${username}.`);
+            return;
+          }
+
+          const verifyButton = target.closest("[data-verify-upgrade-request]");
+          if (verifyButton) {
+            verifyButton.textContent = "Terverifikasi";
+            verifyButton.disabled = true;
+            verifyButton.className = "cursor-not-allowed rounded-lg bg-[#e5e7eb] px-3 py-2 text-sm font-semibold text-[#737373]";
+            return;
+          }
+
+          const deleteButton = target.closest("[data-delete-upgrade-request]");
+          if (deleteButton) {
+            const row = deleteButton.closest("[data-upgrade-request-row]");
+            const username = row?.getAttribute("data-username") || "user";
+            if (!window.confirm(`Hapus permintaan upgrade ${username}?`)) return;
+
+            row?.remove();
+            renderUpgradeEmptyState();
+          }
+        });
+
+        renderUpgradeEmptyState();
+      }
+
+      updateTotal();
+    }
+
+    function initNavigation() {
+      const navButtons = document.querySelectorAll(".nav-btn");
+
+      navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetPage = btn.dataset.page;
+          if (!pages.includes(targetPage)) return;
+
+          loadPage(targetPage);
+          window.history.pushState({}, "", getPageUrl(targetPage));
+        });
+      });
+    }
+
+    window.addEventListener("popstate", () => {
+      loadPage(getInitialPage());
+    });
+  </script>
+</body>
+</html>
