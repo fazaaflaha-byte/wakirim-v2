@@ -46,11 +46,12 @@
       <input id="verify-email-input" class="w-full rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-3 text-sm font-semibold text-[#111111] outline-none" type="email" readonly>
     </label>
     <label class="block">
-      <span class="mb-2 block text-sm font-semibold text-[#111111]">Password Akun</span>
+      <span class="mb-2 block text-sm font-semibold text-[#111111]">Password Akun Baru</span>
       <input id="verify-password-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-3 text-sm font-medium text-[#111111] outline-none transition-colors focus:border-[#111111]" type="text" placeholder="Masukkan password akun">
+      <span class="mt-1 block text-xs text-[#737373]">Kosongkan untuk perpanjangan akun yang sudah ada.</span>
     </label>
     <button id="send-email-btn" class="rounded-lg bg-[#111111] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] cursor-pointer whitespace-nowrap" type="button">
-        Verifikasi & Kirim Email
+        Verifikasi
       </button>
   </div>
 
@@ -211,11 +212,6 @@
   document.getElementById('send-email-btn')?.addEventListener('click', async () => {
     const password = document.getElementById('verify-password-input').value.trim();
 
-    if (!password) {
-      showVerifyStatus('Password akun diperlukan', true);
-      return;
-    }
-
     // Show loading
     const btn = document.getElementById('send-email-btn');
     btn.disabled = true;
@@ -236,18 +232,18 @@
       const result = await response.json();
 
       if (result.success) {
-        showVerifyStatus('Pembayaran berhasil diverifikasi dan email akun dikirim', false);
+        showVerifyStatus(result.message || 'Pembayaran berhasil diverifikasi', false);
         document.getElementById('verify-payment-card').classList.add('hidden');
         loadPayments();
       } else {
         showVerifyStatus(result.message || 'Terjadi kesalahan', true);
         btn.disabled = false;
-        btn.textContent = 'Verifikasi & Kirim Email';
+        btn.textContent = 'Verifikasi';
       }
     } catch (error) {
       showVerifyStatus('Gagal memproses. Silakan coba lagi.', true);
       btn.disabled = false;
-      btn.textContent = 'Verifikasi & Kirim Email';
+      btn.textContent = 'Verifikasi';
     }
   });
 

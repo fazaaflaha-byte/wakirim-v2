@@ -34,3 +34,27 @@ type Paket struct {
 	DurasiBulan int    `json:"durasi_bulan" db:"durasi_bulan"`
 	Aktif       bool   `json:"aktif" db:"aktif"`
 }
+
+// Table Pengaduan
+type Pengaduan struct {
+	ID                string     `json:"id" db:"id" gorm:"primaryKey"`
+	AkunUUID          string     `json:"akun_uuid" db:"akun_uuid" gorm:"index"`
+	Email             string     `json:"email" db:"email"`
+	Judul             string     `json:"judul" db:"judul"`
+	Deskripsi         string     `json:"deskripsi" db:"deskripsi"`
+	Jawaban           *string    `json:"jawaban" db:"jawaban"`
+	Status            string     `json:"status" db:"status"` // "menunggu" | "ditanggapi"
+	TanggalDibuat     time.Time  `json:"tanggal_dibuat" db:"tanggal_dibuat"`
+	TanggalDitanggapi *time.Time `json:"tanggal_ditanggapi" db:"tanggal_ditanggapi"`
+}
+
+// Table DataContact
+type DataContact struct {
+	ID            string    `json:"id" db:"id" gorm:"primaryKey"`
+	AkunUUID      string    `json:"akun_uuid" db:"akun_uuid" gorm:"index"`
+	NamaFile      string    `json:"nama_file" db:"nama_file"`
+	DataTXT       string    `json:"data_txt" db:"data_txt" gorm:"type:text"`
+	TotalContact  int       `json:"total_contact" db:"total_contact"`
+	Sumber        string    `json:"sumber" db:"sumber"` // "csv" | "manual"
+	TanggalDibuat time.Time `json:"tanggal_dibuat" db:"tanggal_dibuat"`
+}

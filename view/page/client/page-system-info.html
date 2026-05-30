@@ -6,7 +6,7 @@
   </div>
   <div class="flex items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#404040]">
     <span class="h-2 w-2 rounded-full bg-[#111111]" aria-hidden="true"></span>
-    Paket Growth aktif
+    <span class="header-active-badge">Memuat...</span>
   </div>
 </header>
 
@@ -15,8 +15,8 @@
     <p class="text-sm font-medium text-white/65">Total waktu akun Anda berakhir</p>
     <div class="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
-        <p class="text-4xl font-semibold leading-none">14 hari</p>
-        <p class="mt-3 text-sm text-white/65">Berakhir pada 04 Juni 2026, 23:59 WIB</p>
+        <p id="days-remaining" class="text-4xl font-semibold leading-none">Memuat...</p>
+        <p id="expiry-date-text" class="mt-3 text-sm text-white/65">-</p>
       </div>
       <span class="w-fit rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-white/75">Auto renew off</span>
     </div>
@@ -27,15 +27,15 @@
     <div class="mt-5 space-y-3">
       <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
         <span class="text-sm text-[#737373]">Paket aktif</span>
-        <span class="text-sm font-semibold text-[#111111]">Growth</span>
+        <span id="paket-aktif" class="text-sm font-semibold text-[#111111]">-</span>
       </div>
       <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
         <span class="text-sm text-[#737373]">Mulai</span>
-        <span class="text-sm font-semibold text-[#111111]">04 Mei 2026</span>
+        <span id="tanggal-mulai" class="text-sm font-semibold text-[#111111]">-</span>
       </div>
       <div class="flex items-center justify-between rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
         <span class="text-sm text-[#737373]">Status</span>
-        <span class="text-sm font-semibold text-[#111111]">Aktif</span>
+        <span id="account-status" class="text-sm font-semibold text-[#111111]">-</span>
       </div>
     </div>
   </article>
@@ -73,7 +73,7 @@
 
         <div class="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2.5">
           <p class="text-sm text-[#737373]">Jadwal berakhir berikutnya</p>
-          <p class="mt-1 text-sm font-semibold text-[#111111]">04 Juli 2026, 23:59 WIB</p>
+          <p id="next-expiry-preview" class="mt-1 text-sm font-semibold text-[#111111]">-</p>
         </div>
 
         <div class="rounded-lg border border-[#111111] bg-white px-3 py-2.5">
@@ -83,7 +83,7 @@
 
         <label class="block">
           <span class="mb-1.5 block text-sm font-medium text-[#525252]">Bukti pembayaran</span>
-          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] file:mr-3 file:rounded-md file:border-0 file:bg-[#111111] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="file" accept="image/*,.pdf">
+          <input id="renewal-proof-input" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] file:mr-3 file:rounded-md file:border-0 file:bg-[#111111] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="file" accept="image/*">
         </label>
 
         <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
@@ -94,7 +94,8 @@
         </div>
       </div>
 
-      <button class="mt-4 flex w-full items-center justify-center rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">Bayar</button>
+      <button id="renewal-pay-button" class="mt-4 flex w-full items-center justify-center rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b] disabled:cursor-not-allowed disabled:bg-[#a3a3a3]" type="button">Bayar</button>
+      <p id="renewal-payment-status" class="mt-3 hidden rounded-lg border px-3 py-2 text-sm font-medium"></p>
     </div>
 
     <aside class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4" aria-label="QRIS pembayaran">
@@ -109,16 +110,25 @@
         <p class="text-sm font-semibold text-[#111111]">Pilihan Durasi Perpanjangan</p>
         <div class="mt-3 grid grid-cols-1 gap-2">
           <label class="flex cursor-pointer items-center justify-between rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-2.5 text-sm text-[#111111] transition-colors hover:border-[#111111]">
-            <span>1 Bulan</span>
-            <input class="h-4 w-4 accent-[#111111]" type="radio" name="duration-plan" value="1" data-price="59000" checked>
+            <div class="flex items-center gap-2">
+              <span>1 Bulan - </span>
+              <span class="rounded bg-[#d4d4d4] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#525252]">Starter</span>
+            </div>
+            <input class="h-4 w-4 accent-[#111111]" type="radio" name="duration-plan" value="1" data-price="59000" data-plan="starter" checked>
           </label>
           <label class="flex cursor-pointer items-center justify-between rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-2.5 text-sm text-[#111111] transition-colors hover:border-[#111111]">
-            <span>3 Bulan</span>
-            <input class="h-4 w-4 accent-[#111111]" type="radio" name="duration-plan" value="3" data-price="149000">
+            <div class="flex items-center gap-2">
+              <span>3 Bulan - </span>
+              <span class="rounded bg-[#d4d4d4] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-[#525252]">Growth</span>
+            </div>
+            <input class="h-4 w-4 accent-[#111111]" type="radio" name="duration-plan" value="3" data-price="149000" data-plan="growth">
           </label>
           <label class="flex cursor-pointer items-center justify-between rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-2.5 text-sm text-[#111111] transition-colors hover:border-[#111111]">
-            <span>12 Bulan</span>
-            <input class="h-4 w-4 accent-[#111111]" type="radio" name="duration-plan" value="12" data-price="299000">
+            <div class="flex items-center gap-2">
+              <span>12 Bulan - </span>
+              <span class="rounded bg-[#111111] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-white">Best Value</span>
+            </div>
+            <input class="h-4 w-4 accent-[#111111]" type="radio" name="duration-plan" value="12" data-price="295000" data-plan="best-value">
           </label>
         </div>
       </div>

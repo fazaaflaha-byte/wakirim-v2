@@ -107,11 +107,11 @@
       <h2 class="text-[15px] font-semibold text-[#111111]">Permintaan Upgrade</h2>
       <p class="mt-1 text-sm text-[#737373]">Daftar permintaan upgrade paket user yang menunggu pengecekan bukti pembayaran.</p>
     </div>
-    <span class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1 text-xs font-medium text-[#525252]">UI Preview</span>
+    <span class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-1 text-xs font-medium text-[#525252]">Payment pending</span>
   </div>
 
   <div class="overflow-hidden rounded-lg border border-[#e5e7eb]">
-    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] lg:grid lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center">
+    <div class="hidden gap-3 border-b border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-[#737373] lg:grid lg:grid-cols-[minmax(140px,1fr)_minmax(180px,1fr)_120px_150px_120px_130px_110px_minmax(150px,auto)] lg:items-center">
       <span>Username</span>
       <span>Email</span>
       <span>Nama Plan</span>
@@ -123,50 +123,18 @@
     </div>
 
     <div id="upgrade-request-list" class="divide-y divide-[#e5e7eb]">
-      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center" data-upgrade-request-row data-username="reseller_01">
-        <p class="font-semibold text-[#111111]">reseller_01</p>
-        <p class="truncate text-sm text-[#525252]" title="reseller@email.com">reseller@email.com</p>
-        <p class="text-sm font-semibold text-[#111111]">Growth</p>
-        <p class="text-sm text-[#525252]">22 Mei 2026, 13:45 WIB</p>
-        <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-upgrade-proof="reseller_01">Lihat Bukti</button>
-        <p class="text-sm text-[#525252]">22 Juli 2026</p>
-        <div>
-          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-upgrade-request>Verifikasi</button>
-        </div>
-        <div class="flex justify-end">
-          <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-upgrade-request>Delete</button>
-        </div>
-      </div>
-
-      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center" data-upgrade-request-row data-username="client_wakirim">
-        <p class="font-semibold text-[#111111]">client_wakirim</p>
-        <p class="truncate text-sm text-[#525252]" title="client@email.com">client@email.com</p>
-        <p class="text-sm font-semibold text-[#111111]">Best Value</p>
-        <p class="text-sm text-[#525252]">22 Mei 2026, 10:18 WIB</p>
-        <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-upgrade-proof="client_wakirim">Lihat Bukti</button>
-        <p class="text-sm text-[#525252]">22 November 2026</p>
-        <div>
-          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-upgrade-request>Verifikasi</button>
-        </div>
-        <div class="flex justify-end">
-          <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-upgrade-request>Delete</button>
-        </div>
-      </div>
-
-      <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_220px_130px_170px_130px_130px_130px_90px] lg:items-center" data-upgrade-request-row data-username="user_techcorp">
-        <p class="font-semibold text-[#111111]">user_techcorp</p>
-        <p class="truncate text-sm text-[#525252]" title="techcorp@techcorp.id">techcorp@techcorp.id</p>
-        <p class="text-sm font-semibold text-[#111111]">Starter</p>
-        <p class="text-sm text-[#525252]">21 Mei 2026, 19:05 WIB</p>
-        <button class="w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-view-upgrade-proof="user_techcorp">Lihat Bukti</button>
-        <p class="text-sm text-[#525252]">21 Juni 2026</p>
-        <div>
-          <button class="rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button" data-verify-upgrade-request>Verifikasi</button>
-        </div>
-        <div class="flex justify-end">
-          <button class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white" type="button" data-delete-upgrade-request>Delete</button>
-        </div>
-      </div>
+      <div class="p-8 text-center text-sm font-medium text-[#737373]">Memuat permintaan upgrade...</div>
     </div>
   </div>
 </section>
+
+<div id="upgrade-proof-modal" class="fixed inset-0 z-50 hidden bg-black/90" aria-hidden="true">
+  <div class="flex h-full items-center justify-center p-4">
+    <button id="close-upgrade-proof-modal" class="absolute right-4 top-4 rounded-full bg-white p-2 text-black hover:bg-gray-200" type="button">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <img id="upgrade-proof-image" class="max-h-[90vh] max-w-[90vw] rounded-lg object-contain" src="" alt="Bukti pembayaran upgrade">
+  </div>
+</div>

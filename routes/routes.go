@@ -13,7 +13,9 @@ import (
 
 	"wakirim/middleware"
 	"wakirim/module/auth"
+	"wakirim/module/datacontact"
 	"wakirim/module/payment"
+	"wakirim/module/pengaduan"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,8 @@ const adminSessionCookie = "wakirim_admin_session"
 
 var paymentHandler *payment.Handler
 var authHandler *auth.Handler
+var pengaduanHandler *pengaduan.Handler
+var dataContactHandler *datacontact.Handler
 
 func SetupRouter() *gin.Engine {
 	router := gin.New()
@@ -37,6 +41,9 @@ func RegisterRoutes(router *gin.Engine) {
 	// Initialize payment handler
 	paymentHandler = payment.NewHandler()
 	authHandler = auth.NewHandler()
+	pengaduanHandler = pengaduan.NewHandler()
+	dataContactHandler = datacontact.NewHandler()
+
 	clientPageGuard := middleware.ClientPageAuthGuard(authHandler.IsClientAuthenticated)
 
 	router.Static("/assets", "./view/assets")
@@ -81,6 +88,17 @@ func RegisterRoutes(router *gin.Engine) {
 	// Register payment API routes
 	paymentHandler.RegisterRoutes(router)
 	authHandler.RegisterRoutes(router, middleware.ClientLoginProtectionMiddleware())
+	pengaduanHandler.RegisterClientRoutes(router, middleware.ClientLoginProtectionMiddleware(), authHandler.RequireClientAuthPage)
+	pengaduanHandler.RegisterAdminRoutes(router, requireAdminSessionMiddleware)
+	dataContactHandler.RegisterRoutes(router, middleware.ClientLoginProtectionMiddleware(), authHandler.RequireClientAuthPage)
+}
+
+func requireAdminSessionMiddleware(ctx *gin.Context) {
+	if !isAdminAuthenticated(ctx) {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"success": false, "message": "Unauthorized admin"})
+		return
+	}
+	ctx.Next()
 }
 
 func serveAdmin(ctx *gin.Context) {

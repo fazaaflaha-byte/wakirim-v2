@@ -112,6 +112,19 @@ func (s *Service) GetAllPayments() ([]PaymentResponse, error) {
 	return responses, nil
 }
 
+func (s *Service) GetRenewalPayments() ([]PaymentResponse, error) {
+	payments, err := s.repo.GetRenewalPayments()
+	if err != nil {
+		return nil, err
+	}
+
+	var responses []PaymentResponse
+	for _, p := range payments {
+		responses = append(responses, s.paymentToResponse(p))
+	}
+	return responses, nil
+}
+
 func (s *Service) GetPaymentsByStatus(status string) ([]PaymentResponse, error) {
 	payments, err := s.repo.GetPaymentsByStatus(status)
 	if err != nil {
@@ -145,7 +158,7 @@ func (s *Service) VerifyAndCreateAccount(paymentID string, password string) erro
 		return errors.New("pembayaran tidak ditemukan")
 	}
 
-	if payment.Status == "verified" {
+	if payment.Status == "verified" || payment.Status == "terverifikasi" {
 		return errors.New("pembayaran sudah diverifikasi")
 	}
 
@@ -153,6 +166,18 @@ func (s *Service) VerifyAndCreateAccount(paymentID string, password string) erro
 	paket, err := s.repo.GetPaketByID(payment.Paket)
 	if err != nil {
 		return errors.New("paket tidak ditemukan")
+	}
+
+	if existingAkun, err := s.repo.GetAkunByUsername(payment.Username); err == nil {
+		return s.verifyAndExtendAccount(payment, existingAkun, paket)
+	}
+
+	if existingAkun, err := s.repo.GetAkunByEmail(payment.Email); err == nil {
+		return s.verifyAndExtendAccount(payment, existingAkun, paket)
+	}
+
+	if strings.TrimSpace(password) == "" {
+		return errors.New("password akun diperlukan untuk pembayaran akun baru")
 	}
 
 	// Hash password
@@ -186,6 +211,33 @@ func (s *Service) VerifyAndCreateAccount(paymentID string, password string) erro
 
 	if err := s.sendAccountEmail(payment.Email, payment.Username, password); err != nil {
 		return errors.New("akun berhasil dibuat, tetapi email gagal dikirim: " + err.Error())
+	}
+
+	return nil
+}
+
+func (s *Service) verifyAndExtendAccount(payment *model.Payment, akun *model.Akun, paket *model.Paket) error {
+	now := time.Now()
+	startDate := now
+	if akun.TanggalBerakhir.After(now) {
+		startDate = akun.TanggalBerakhir
+	}
+	newExpiry := startDate.AddDate(0, paket.DurasiBulan, 0)
+
+	if err := s.repo.UpdateAkunExpiry(akun.UUID, newExpiry); err != nil {
+		return errors.New("gagal memperpanjang masa aktif akun")
+	}
+
+	if err := s.repo.UpdateAkunStatus(akun.UUID, "berjalan"); err != nil {
+		return errors.New("gagal update status akun")
+	}
+
+	if err := s.repo.UpdatePaymentStatus(payment.ID, "verified"); err != nil {
+		return errors.New("gagal update status pembayaran")
+	}
+
+	if err := s.sendRenewalEmail(akun.Email, akun.Username, paket.Nama, newExpiry); err != nil {
+		return errors.New("masa aktif berhasil diperpanjang, tetapi email gagal dikirim: " + err.Error())
 	}
 
 	return nil
@@ -638,6 +690,25 @@ func (s *Service) sendPasswordResetEmail(email, newPassword string) error {
 	return sendSMTPEmail(cfg, []string{email}, subject, plainBody, htmlBody)
 }
 
+func (s *Service) sendRenewalEmail(email, username, paketName string, newExpiry time.Time) error {
+	cfg := config.GetSMTPConfig()
+	if !cfg.Enabled() {
+		config.Log("[Email] SMTP belum lengkap (" + strings.Join(cfg.MissingFields(), ", ") + "), email perpanjangan dilewati untuk " + email)
+		return nil
+	}
+
+	expiryText := newExpiry.Format("02 Jan 2006")
+	subject := "Perpanjangan Masa Aktif Wakirim Selesai Diproses"
+	plainBody := fmt.Sprintf(
+		"Halo %s,\n\nPerpanjangan masa aktif akun Wakirim Anda sudah selesai diproses.\n\nPaket: %s\nMasa aktif baru sampai: %s\n\nTerima kasih.\nWakirim",
+		username,
+		paketName,
+		expiryText,
+	)
+	htmlBody := buildRenewalEmailHTML(username, paketName, expiryText, cfg.LogoURL, cfg.LoginURL)
+	return sendSMTPEmail(cfg, []string{email}, subject, plainBody, htmlBody)
+}
+
 func buildAccountEmailHTML(username, email, password, logoURL, loginURL string) string {
 	return fmt.Sprintf(`<!doctype html>
 <html lang="id">
@@ -724,6 +795,50 @@ func buildAccountEmailHTML(username, email, password, logoURL, loginURL string) 
   </table>
 </body>
 </html>`, emailLogoHTML(logoURL), html.EscapeString(username), html.EscapeString(email), html.EscapeString(password), html.EscapeString(loginURL))
+}
+
+func buildRenewalEmailHTML(username, paketName, expiryText, logoURL, loginURL string) string {
+	return fmt.Sprintf(`<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="margin:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;color:#111111;">
+  <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background:#f3f4f6;padding:34px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
+          <tr>
+            <td style="padding:28px;text-align:center;background:#111111;">
+              %s
+              <h1 style="margin:18px 0 0;font-size:24px;line-height:1.3;color:#ffffff;">Perpanjangan Selesai Diproses</h1>
+              <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#d4d4d4;">Masa aktif akun Wakirim Anda sudah diperbarui.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:26px 28px;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#525252;">Halo <strong>%s</strong>, permintaan perpanjangan Anda telah diverifikasi oleh admin.</p>
+              <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fafafa;">
+                <tr>
+                  <td style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#737373;">Paket</td>
+                  <td style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:#111111;">%s</td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 16px;font-size:13px;color:#737373;">Aktif sampai</td>
+                  <td style="padding:14px 16px;font-size:14px;font-weight:700;color:#111111;">%s</td>
+                </tr>
+              </table>
+              <p style="margin:18px 0 0;font-size:14px;line-height:1.7;color:#525252;">Terima kasih telah memperpanjang layanan Wakirim.</p>
+              <p style="margin:18px 0 0;text-align:center;"><a href="%s" style="display:inline-block;border-radius:10px;background:#111111;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 18px;">Buka Dashboard</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`, emailLogoHTML(logoURL), html.EscapeString(username), html.EscapeString(paketName), html.EscapeString(expiryText), html.EscapeString(loginURL))
 }
 
 func buildPasswordResetEmailHTML(newPassword, logoURL string) string {

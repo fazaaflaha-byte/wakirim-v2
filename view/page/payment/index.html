@@ -57,6 +57,7 @@
                     <p class="text-sm font-semibold text-[#111111]">Deskripsi & Disclaimer</p>
                     <p class="mt-1 text-sm leading-6 text-[#525252]">
                         Paket otomatis mengikuti parameter link pembayaran Anda. Pastikan nominal transfer sesuai paket yang dipilih, simpan bukti pembayaran, dan jangan bagikan data akun ke pihak lain.
+                        Email resmi Wakirim hanya admin.wakirim@gmail.com. Jika ada email lain yang mengatasnamakan Wakirim, abaikan dan segera laporkan karena kemungkinan penyalahgunaan.
                     </p>
                 </div>
                 <div id="paket-list" class="grid gap-3">
@@ -164,9 +165,9 @@
                 console.error('Failed to load pakets:', error);
                 // Use fallback data
                 pakets = [
-                    { id: 'starter', nama: 'Starter', harga: 60000, durasi_bulan: 1 },
-                    { id: 'growth', nama: 'Growth', harga: 130000, durasi_bulan: 2 },
-                    { id: 'best-value', nama: 'Best Value', harga: 299000, durasi_bulan: 6 }
+                    { id: 'starter', nama: 'Starter', harga: 59000, durasi_bulan: 1 },
+                    { id: 'growth', nama: 'Growth', harga: 149000, durasi_bulan: 3 },
+                    { id: 'best-value', nama: 'Best Value', harga: 295000, durasi_bulan: 12 }
                 ];
                 renderPaketList();
                 if (pakets.length > 0) selectPaket(pakets[0].id);

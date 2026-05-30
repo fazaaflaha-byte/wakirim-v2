@@ -1,4 +1,0 @@
-./auth.dto.go
-./auth.handler.go
-./auth.repository.go
-./auth.service.go

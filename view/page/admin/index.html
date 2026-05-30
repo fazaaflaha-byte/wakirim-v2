@@ -1167,6 +1167,7 @@
         verifyStatus.classList.add('hidden');
         verifyCard.classList.remove('hidden');
         verifyCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        passwordInput.placeholder = 'Isi hanya untuk akun baru';
         passwordInput.focus();
       }
 
@@ -1303,10 +1304,6 @@
         if (!selectedPayment) return;
 
         const accountPassword = passwordInput.value.trim();
-        if (!accountPassword) {
-          setVerifyStatus('Password akun harus diisi untuk verifikasi.', 'error');
-          return;
-        }
 
         sendEmailBtn.disabled = true;
         sendEmailBtn.textContent = 'Memproses...';
@@ -1329,7 +1326,7 @@
             throw new Error(result.message || 'Gagal memverifikasi pembayaran.');
           }
 
-          setVerifyStatus('Pembayaran berhasil diverifikasi dan email akun dikirim.', 'success');
+          setVerifyStatus(result.message || 'Pembayaran berhasil diverifikasi.', 'success');
           await loadPayments();
           setTimeout(() => {
             verifyCard.classList.add('hidden');
@@ -1339,7 +1336,7 @@
           setVerifyStatus(error.message || 'Gagal memverifikasi pembayaran.', 'error');
         } finally {
           sendEmailBtn.disabled = false;
-          sendEmailBtn.textContent = 'Verifikasi & Kirim Email';
+          sendEmailBtn.textContent = 'Verifikasi';
         }
       });
 
@@ -1586,10 +1583,11 @@
       const closeDetailButton = document.querySelector("[data-close-complaint-detail]");
       const closeReplyButton = document.querySelector("[data-close-complaint-reply]");
       const sendReplyButton = document.querySelector("[data-send-complaint-reply]");
-      let selectedRow = null;
+      const pengaduanListContainer = document.getElementById("pengaduan-list-container");
+      let pengaduanData = [];
 
       function getRows() {
-        return Array.from(document.querySelectorAll("[data-complaint-row]"));
+        return Array.from(pengaduanListContainer.querySelectorAll("[data-complaint-row]"));
       }
 
       function setStatusMessage(message, tone) {
@@ -1599,51 +1597,52 @@
           ? "border-[#111111] bg-white text-[#111111]"
           : "border-[#e5e7eb] bg-[#fafafa] text-[#525252]";
 
-        replyStatus.className = `rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        replyStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
         replyStatus.textContent = message;
       }
 
-      function setBadgeReplied(row) {
-        const badge = row.querySelector("[data-complaint-status]");
-        row.dataset.status = "Ditanggapi";
-
-        if (badge) {
-          badge.textContent = "Ditanggapi";
-          badge.className = "w-fit rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#111111]";
-        }
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        }[character]));
       }
 
       function updateCounts() {
-        const rows = getRows();
-        const closed = rows.filter((row) => row.dataset.status === "Ditanggapi").length;
-        const open = rows.length - closed;
+        const closed = pengaduanData.filter((item) => item.status === "ditanggapi").length;
+        const open = pengaduanData.length - closed;
 
         if (openCount) openCount.textContent = open;
         if (closedCount) closedCount.textContent = closed;
-        if (totalBadge) totalBadge.textContent = `${rows.length} tiket`;
+        if (totalBadge) totalBadge.textContent = `${pengaduanData.length} tiket`;
       }
 
-      function showDetail(row) {
-        if (!detailCard || !detailTitle || !detailMeta || !detailMessage) return;
+      function showDetail(id) {
+        const row = pengaduanData.find(p => p.id === id);
+        if (!row || !detailCard || !detailTitle || !detailMeta || !detailMessage) return;
 
         if (replyCard) replyCard.classList.add("hidden");
 
-        detailTitle.textContent = row.dataset.title || "-";
-        detailMeta.textContent = `${row.dataset.user || "-"} | ${row.dataset.email || "-"} | ${row.dataset.date || "-"} | ${row.dataset.status || "-"}`;
-        detailMessage.textContent = row.dataset.message || "-";
+        detailTitle.textContent = row.judul || "-";
+        detailMeta.textContent = `${row.email || "-"} | ${row.tanggal_dibuat || "-"} | ${row.status === 'ditanggapi' ? 'Ditanggapi' : 'Menunggu'}`;
+        detailMessage.textContent = row.deskripsi || "-";
         detailCard.classList.remove("hidden");
         detailCard.scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
-      function showReply(row) {
-        if (!replyCard || !replyUsername || !replyEmail || !replyMessage) return;
+      function showReply(id) {
+        const row = pengaduanData.find(p => p.id === id);
+        if (!row || !replyCard || !replyUsername || !replyEmail || !replyMessage) return;
 
         selectedRow = row;
         if (detailCard) detailCard.classList.add("hidden");
 
-        replyUsername.value = row.dataset.user || "";
-        replyEmail.value = row.dataset.email || "";
-        replyMessage.value = "";
+        replyUsername.value = row.username || "-"; 
+        replyEmail.value = row.email || "";
+        replyMessage.value = row.jawaban || "";
 
         if (replyStatus) {
           replyStatus.textContent = "";
@@ -1652,26 +1651,81 @@
 
         if (sendReplyButton) {
           sendReplyButton.disabled = false;
-          sendReplyButton.textContent = "Kirim Balasan via Email";
+          sendReplyButton.textContent = "Kirim Balasan";
+          if (row.status === 'ditanggapi') {
+            sendReplyButton.disabled = true;
+            sendReplyButton.textContent = "Sudah Ditanggapi";
+          }
         }
 
         replyCard.classList.remove("hidden");
         replyCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        replyMessage.focus();
+        if (row.status !== 'ditanggapi') {
+          replyMessage.focus();
+        } else {
+          replyMessage.readOnly = true;
+        }
       }
 
-      getRows().forEach((row) => {
-        const detailButton = row.querySelector("[data-complaint-detail]");
-        const replyButton = row.querySelector("[data-complaint-reply]");
+      function renderPengaduanList() {
+        if (!pengaduanListContainer) return;
+        
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        const filtered = pengaduanData.filter((item) => {
+          const haystack = `${item.judul || ""} ${item.email || ""}`.toLowerCase();
+          return haystack.includes(query);
+        });
 
-        if (detailButton) {
-          detailButton.addEventListener("click", () => showDetail(row));
+        if (filtered.length === 0) {
+          pengaduanListContainer.innerHTML = `
+            <div class="p-8 text-center text-sm font-medium text-[#737373]">
+              Tidak ada data pengaduan.
+            </div>
+          `;
+          return;
         }
 
-        if (replyButton) {
-          replyButton.addEventListener("click", () => showReply(row));
+        pengaduanListContainer.innerHTML = filtered.map(item => {
+          const displayUsername = (item.username && item.username.trim()) ? escapeHtml(item.username) : '<span class="text-[#a3a3a3]">-</span>';
+          return `
+          <div class="grid gap-3 px-4 py-4 lg:grid lg:items-center border-b border-[#e5e7eb] last:border-0" style="grid-template-columns:minmax(160px,1.5fr) minmax(120px,1fr) minmax(160px,1.2fr) minmax(100px,100px) minmax(90px,90px) minmax(150px,160px);" data-complaint-row>
+            <p class="truncate font-semibold text-[#111111]" title="${escapeHtml(item.judul)}">${escapeHtml(item.judul)}</p>
+            <p class="truncate text-sm text-[#525252]" title="${escapeHtml(item.username || '')}">${displayUsername}</p>
+            <p class="truncate text-sm text-[#525252]" title="${escapeHtml(item.email)}">${escapeHtml(item.email)}</p>
+            <p class="text-sm text-[#525252]">${item.tanggal_dibuat.split(',')[0]}</p>
+            ${item.status === 'ditanggapi'
+              ? '<span class="w-fit rounded-lg border border-[#d4d4d4] bg-[#fafafa] px-3 py-1.5 text-xs font-semibold text-[#111111]" data-complaint-status>Ditanggapi</span>'
+              : '<span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white" data-complaint-status>Menunggu</span>'}
+            <div class="flex flex-row sm:flex-row items-center justify-end gap-2 sm:gap-2 flex-wrap">
+              <button class="flex-1 sm:flex-none min-w-0 sm:min-w-fit rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white whitespace-nowrap" type="button" onclick="showDetail('${item.id}')">Detail</button>
+              <button class="flex-1 sm:flex-none min-w-0 sm:min-w-fit rounded-lg bg-[#111111] px-3 py-2 text-xs sm:text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] whitespace-nowrap" type="button" onclick="showReply('${item.id}')">${item.status === 'ditanggapi' ? 'Lihat' : 'Tanggapi'}</button>
+            </div>
+          </div>
+        `}).join('');
+        
+        // Expose functions globally so onclick works
+        window.showDetail = showDetail;
+        window.showReply = showReply;
+      }
+
+      async function loadPengaduanData() {
+        try {
+          const response = await fetch("/api/admin/pengaduan", { credentials: "same-origin" });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengambil data pengaduan");
+          }
+
+          pengaduanData = result.data || [];
+          updateCounts();
+          renderPengaduanList();
+        } catch (error) {
+          if (pengaduanListContainer) {
+            pengaduanListContainer.innerHTML = `<p class="p-8 text-center text-sm font-medium text-red-700">${error.message}</p>`;
+          }
         }
-      });
+      }
 
       if (closeDetailButton && detailCard) {
         closeDetailButton.addEventListener("click", () => {
@@ -1683,27 +1737,21 @@
         closeReplyButton.addEventListener("click", () => {
           replyCard.classList.add("hidden");
           selectedRow = null;
+          if (replyMessage) replyMessage.readOnly = false;
         });
       }
 
       if (searchInput) {
-        searchInput.addEventListener("input", () => {
-          const query = searchInput.value.toLowerCase().trim();
-
-          getRows().forEach((row) => {
-            const haystack = `${row.dataset.title || ""} ${row.dataset.user || ""} ${row.dataset.email || ""}`.toLowerCase();
-            row.style.display = haystack.includes(query) ? "" : "none";
-          });
-        });
+        searchInput.addEventListener("input", renderPengaduanList);
       }
 
       if (sendReplyButton && replyMessage) {
-        sendReplyButton.addEventListener("click", () => {
+        sendReplyButton.addEventListener("click", async () => {
           if (!selectedRow) return;
 
           const message = replyMessage.value.trim();
           const email = replyEmail ? replyEmail.value.trim() : "";
-          const targetRow = selectedRow;
+          const targetId = selectedRow.id;
 
           if (!message) {
             setStatusMessage("Balasan tidak boleh kosong.", "error");
@@ -1712,19 +1760,39 @@
 
           sendReplyButton.disabled = true;
           sendReplyButton.textContent = "Mengirim...";
-          setStatusMessage(`Mengirim balasan ke ${email}...`, "neutral");
+          setStatusMessage(`Mengirim tanggapan...`, "neutral");
 
-          setTimeout(() => {
-            setBadgeReplied(targetRow);
-            updateCounts();
-            setStatusMessage(`Balasan berhasil dikirim ke ${email}.`, "neutral");
+          try {
+            const response = await fetch(`/api/admin/pengaduan/${targetId}/tanggapan`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ jawaban: message }),
+              credentials: "same-origin",
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Gagal mengirim tanggapan.");
+            }
+
+            setStatusMessage(`Tanggapan berhasil disimpan.`, "neutral");
+            sendReplyButton.textContent = "Terkirim";
+            
+            // Reload data
+            setTimeout(() => {
+              replyCard.classList.add("hidden");
+              selectedRow = null;
+              loadPengaduanData();
+            }, 1000);
+          } catch (error) {
+            setStatusMessage(error.message, "error");
             sendReplyButton.disabled = false;
-            sendReplyButton.textContent = "Balasan Terkirim";
-          }, 700);
+            sendReplyButton.textContent = "Kirim Balasan";
+          }
         });
       }
 
-      updateCounts();
+      loadPengaduanData();
     }
 
     function initResetKataSandiPage() {
@@ -1839,6 +1907,27 @@
 
       const upgradeRequestList = document.getElementById("upgrade-request-list");
       if (upgradeRequestList) {
+        const proofModal = document.getElementById("upgrade-proof-modal");
+        const proofImage = document.getElementById("upgrade-proof-image");
+        const closeProofModal = document.getElementById("close-upgrade-proof-modal");
+        let upgradePayments = [];
+        const planLabels = {
+          starter: "Starter",
+          growth: "Growth",
+          "best-value": "Best Value",
+          manual: "Manual",
+        };
+
+        function escapeUpgradeHtml(value) {
+          return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;",
+          }[character]));
+        }
+
         const renderUpgradeEmptyState = () => {
           const rows = upgradeRequestList.querySelectorAll("[data-upgrade-request-row]");
           const existingEmptyState = upgradeRequestList.querySelector("[data-upgrade-empty-state]");
@@ -1857,37 +1946,179 @@
           }
         };
 
+        function normalizePaymentStatus(status) {
+          const value = String(status || "").toLowerCase();
+          return value === "verified" || value === "terverifikasi" ? "verified" : "pending";
+        }
+
+        function renderUpgradeRequests() {
+          if (upgradePayments.length === 0) {
+            upgradeRequestList.innerHTML = `
+              <div class="p-8 text-center text-sm font-medium text-[#737373]" data-upgrade-empty-state>
+                Tidak ada permintaan upgrade.
+              </div>
+            `;
+            return;
+          }
+
+          upgradeRequestList.innerHTML = upgradePayments.map((payment) => {
+            const id = escapeUpgradeHtml(payment.id);
+            const username = escapeUpgradeHtml(payment.username || "-");
+            const email = escapeUpgradeHtml(payment.email || "-");
+            const paket = escapeUpgradeHtml(planLabels[payment.paket] || payment.paket || "-");
+            const requestTime = escapeUpgradeHtml(payment.tanggal_bayar || "-");
+            const isPending = normalizePaymentStatus(payment.status) === "pending";
+            const statusBadge = isPending
+              ? '<span class="w-fit rounded-lg border border-[#111111] bg-[#111111] px-3 py-1.5 text-xs font-semibold text-white">Menunggu</span>'
+              : '<span class="w-fit rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">Terverifikasi</span>';
+
+            return `
+              <div class="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(140px,1fr)_minmax(180px,1fr)_120px_150px_120px_130px_110px_minmax(150px,auto)] lg:items-center" data-upgrade-request-row data-payment-id="${id}" data-username="${username}">
+                <p class="font-semibold text-[#111111]">${username}</p>
+                <p class="truncate text-sm text-[#525252]" title="${email}">${email}</p>
+                <p class="text-sm font-semibold text-[#111111]">${paket}</p>
+                <p class="text-sm text-[#525252]">${requestTime}</p>
+                <button class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white lg:w-fit" type="button" data-view-upgrade-proof="${id}">Lihat Bukti</button>
+                <p class="text-sm text-[#525252]">Diproses saat verifikasi</p>
+                <div>${statusBadge}</div>
+                <div class="flex flex-col gap-2 sm:flex-row lg:justify-end">
+                  ${isPending
+                    ? `<button class="w-full rounded-lg bg-[#111111] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b2b2b] sm:w-auto" type="button" data-verify-upgrade-request="${id}">Verifikasi</button>`
+                    : ""}
+                  <button class="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-600 hover:text-white sm:w-auto" type="button" data-delete-upgrade-request="${id}">Delete</button>
+                </div>
+              </div>
+            `;
+          }).join("");
+        }
+
+        async function loadUpgradeRequests() {
+          upgradeRequestList.innerHTML = '<div class="p-8 text-center text-sm font-medium text-[#737373]">Memuat permintaan upgrade...</div>';
+          try {
+            const response = await fetch("/admin/api/payments?type=renewal", { credentials: "same-origin" });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Gagal memuat permintaan upgrade.");
+            }
+
+            upgradePayments = Array.isArray(result.data) ? result.data : [];
+            renderUpgradeRequests();
+          } catch (error) {
+            upgradePayments = [];
+            upgradeRequestList.innerHTML = `<div class="p-8 text-center text-sm font-medium text-red-700">${escapeUpgradeHtml(error.message || "Gagal memuat permintaan upgrade.")}</div>`;
+          }
+        }
+
+        function openUpgradeProof(payment) {
+          if (!payment?.bukti_pembayaran || !proofModal || !proofImage) {
+            window.alert("Bukti pembayaran tidak tersedia.");
+            return;
+          }
+
+          const proof = String(payment.bukti_pembayaran).trim();
+          if (!proof) {
+            window.alert("Bukti pembayaran tidak tersedia.");
+            return;
+          }
+
+          proofImage.onerror = () => {
+            proofModal.classList.add("hidden");
+            proofImage.src = "";
+            window.alert("Gagal membuka gambar bukti pembayaran.");
+          };
+          proofImage.onload = () => {
+            proofImage.onerror = null;
+          };
+          proofImage.src = proof.startsWith("data:") ? proof : `data:image/jpeg;base64,${proof}`;
+          proofModal.classList.remove("hidden");
+        }
+
+        async function verifyUpgrade(payment, button) {
+          button.disabled = true;
+          button.textContent = "Memproses...";
+          try {
+            const response = await fetch("/admin/api/payments/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "same-origin",
+              body: JSON.stringify({ payment_id: payment.id }),
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Gagal verifikasi upgrade.");
+            }
+
+            await loadUpgradeRequests();
+          } catch (error) {
+            window.alert(error.message || "Gagal verifikasi upgrade.");
+            button.disabled = false;
+            button.textContent = "Verifikasi";
+          }
+        }
+
+        async function deleteUpgrade(payment, button) {
+          if (!window.confirm(`Hapus permintaan upgrade ${payment.username || "user"}?`)) return;
+
+          button.disabled = true;
+          button.textContent = "Menghapus...";
+          try {
+            const response = await fetch("/admin/api/payments/delete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "same-origin",
+              body: JSON.stringify({ payment_id: payment.id }),
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+              throw new Error(result.message || "Gagal menghapus permintaan upgrade.");
+            }
+
+            await loadUpgradeRequests();
+          } catch (error) {
+            window.alert(error.message || "Gagal menghapus permintaan upgrade.");
+            button.disabled = false;
+            button.textContent = "Delete";
+          }
+        }
+
+        closeProofModal?.addEventListener("click", () => {
+          proofModal?.classList.add("hidden");
+          if (proofImage) proofImage.src = "";
+        });
+
+        proofModal?.addEventListener("click", (event) => {
+          if (event.target === proofModal) {
+            proofModal.classList.add("hidden");
+            if (proofImage) proofImage.src = "";
+          }
+        });
+
         upgradeRequestList.addEventListener("click", (event) => {
           const target = event.target;
           if (!(target instanceof Element)) return;
 
           const proofButton = target.closest("[data-view-upgrade-proof]");
           if (proofButton) {
-            const username = proofButton.getAttribute("data-view-upgrade-proof") || "user";
-            window.alert(`Preview bukti pembayaran untuk ${username}.`);
+            const payment = upgradePayments.find((item) => item.id === proofButton.getAttribute("data-view-upgrade-proof"));
+            if (payment) openUpgradeProof(payment);
             return;
           }
 
           const verifyButton = target.closest("[data-verify-upgrade-request]");
           if (verifyButton) {
-            verifyButton.textContent = "Terverifikasi";
-            verifyButton.disabled = true;
-            verifyButton.className = "cursor-not-allowed rounded-lg bg-[#e5e7eb] px-3 py-2 text-sm font-semibold text-[#737373]";
+            const payment = upgradePayments.find((item) => item.id === verifyButton.getAttribute("data-verify-upgrade-request"));
+            if (payment) verifyUpgrade(payment, verifyButton);
             return;
           }
 
           const deleteButton = target.closest("[data-delete-upgrade-request]");
           if (deleteButton) {
-            const row = deleteButton.closest("[data-upgrade-request-row]");
-            const username = row?.getAttribute("data-username") || "user";
-            if (!window.confirm(`Hapus permintaan upgrade ${username}?`)) return;
-
-            row?.remove();
-            renderUpgradeEmptyState();
+            const payment = upgradePayments.find((item) => item.id === deleteButton.getAttribute("data-delete-upgrade-request"));
+            if (payment) deleteUpgrade(payment, deleteButton);
           }
         });
 
-        renderUpgradeEmptyState();
+        loadUpgradeRequests();
       }
 
       updateTotal();

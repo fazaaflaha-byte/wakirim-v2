@@ -140,11 +140,68 @@
     function initBerlanggananPage() {
       const durationInputs = pageContent.querySelectorAll('input[name="duration-plan"]');
       const totalPriceText = pageContent.querySelector("#subscription-total-price");
+      const headerBadge = pageContent.querySelector(".header-active-badge");
+      const daysRemaining = pageContent.querySelector("#days-remaining");
+      const expiryDateText = pageContent.querySelector("#expiry-date-text");
+      const paketAktif = pageContent.querySelector("#paket-aktif");
+      const tanggalMulai = pageContent.querySelector("#tanggal-mulai");
+      const accountStatus = pageContent.querySelector("#account-status");
+      const nextExpiryPreview = pageContent.querySelector("#next-expiry-preview");
+      const renewalProofInput = pageContent.querySelector("#renewal-proof-input");
+      const renewalPayButton = pageContent.querySelector("#renewal-pay-button");
+      const renewalPaymentStatus = pageContent.querySelector("#renewal-payment-status");
+      let currentAccountData = null;
 
       if (!durationInputs.length || !totalPriceText) return;
 
       function formatRupiah(number) {
         return `Rp${Number(number || 0).toLocaleString("id-ID")}`;
+      }
+
+      function calculateDaysRemaining(expiryDateStr) {
+        if (!expiryDateStr) return null;
+        const expiryDate = new Date(expiryDateStr);
+        if (isNaN(expiryDate.getTime())) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        expiryDate.setHours(0, 0, 0, 0);
+        const diffTime = expiryDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+
+      function formatDisplayDate(dateStr) {
+        if (!dateStr) return "-";
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const day = String(date.getDate()).padStart(2, "0");
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        return `${day} ${months[date.getMonth()]} ${date.getFullYear()}, 23:59 WIB`;
+      }
+
+      function formatPaketName(paket) {
+        const value = String(paket || "").trim();
+        if (!value) return "-";
+
+        const paketLabels = {
+          "starter": "Starter",
+          "growth": "Growth",
+          "best-value": "Best Value",
+          "manual": "Manual",
+        };
+
+        return paketLabels[value] || value
+          .split(/[-_\s]+/)
+          .filter(Boolean)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      }
+
+      function getStatusText(daysRemaining) {
+        if (daysRemaining === null) return { text: "Tidak Diketahui", isActive: false };
+        if (daysRemaining < 0) return { text: "Berakhir", isActive: false };
+        if (daysRemaining <= 7) return { text: "Akan Berakhir", isActive: true };
+        return { text: "Aktif", isActive: true };
       }
 
       function updateTotalFromSelection() {
@@ -153,11 +210,147 @@
         totalPriceText.textContent = formatRupiah(price);
       }
 
+      function getSelectedPlanInput() {
+        return Array.from(durationInputs).find((input) => input.checked) || null;
+      }
+
+      function setRenewalStatus(message, tone) {
+        if (!renewalPaymentStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-green-200 bg-green-50 text-green-700";
+
+        renewalPaymentStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        renewalPaymentStatus.textContent = message;
+        renewalPaymentStatus.classList.remove("hidden");
+      }
+
+      async function loadAccountData() {
+        try {
+          const response = await fetch("/oauth/me", { credentials: "same-origin" });
+          const result = await response.json();
+
+          if (!response.ok || !result.success || !result.data) {
+            throw new Error(result.message || "Gagal mengambil data akun");
+          }
+
+          const data = result.data;
+          currentAccountData = data;
+          const days = calculateDaysRemaining(data.tanggal_berakhir);
+          const statusInfo = getStatusText(days);
+
+          if (daysRemaining) {
+            if (days !== null && days >= 0) {
+              daysRemaining.textContent = `${days} hari`;
+            } else if (days !== null) {
+              daysRemaining.textContent = "Berakhir";
+            } else {
+              daysRemaining.textContent = "-";
+            }
+          }
+
+          if (expiryDateText) {
+            expiryDateText.textContent = data.tanggal_berakhir
+              ? `Berakhir pada ${formatDisplayDate(data.tanggal_berakhir)}`
+              : "-";
+          }
+
+          if (headerBadge) {
+            headerBadge.textContent = data.status && data.status.toLowerCase() !== "habis" && data.status.toLowerCase() !== "berakhir"
+              ? `${data.status} aktif`
+              : "Berakhir";
+          }
+
+          if (paketAktif) {
+            paketAktif.textContent = formatPaketName(data.paket);
+          }
+
+          if (tanggalMulai) {
+            tanggalMulai.textContent = data.tanggal_daftar
+              ? formatDisplayDate(data.tanggal_daftar).split(",")[0]
+              : "-";
+          }
+
+          if (accountStatus) {
+            accountStatus.textContent = statusInfo.text;
+            accountStatus.className = statusInfo.isActive
+              ? "text-sm font-semibold text-[#111111]"
+              : "text-sm font-semibold text-red-600";
+          }
+
+          if (nextExpiryPreview) {
+            if (data.tanggal_berakhir) {
+              const nextDate = new Date(data.tanggal_berakhir);
+              nextDate.setHours(23, 59, 59, 999);
+              nextDate.setDate(nextDate.getDate() + 1);
+              nextExpiryPreview.textContent = formatDisplayDate(nextDate.toISOString()).split(",")[0];
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load account data:", error);
+        }
+      }
+
       durationInputs.forEach((input) => {
         input.addEventListener("change", updateTotalFromSelection);
       });
 
+      renewalPayButton?.addEventListener("click", async () => {
+        const selectedPlan = getSelectedPlanInput();
+        const proofFile = renewalProofInput?.files?.[0] || null;
+
+        if (!currentAccountData) {
+          setRenewalStatus("Data akun belum siap. Silakan tunggu sebentar lalu coba lagi.", "error");
+          return;
+        }
+
+        if (!selectedPlan) {
+          setRenewalStatus("Pilih durasi perpanjangan terlebih dahulu.", "error");
+          return;
+        }
+
+        if (!proofFile) {
+          setRenewalStatus("Upload bukti pembayaran terlebih dahulu.", "error");
+          return;
+        }
+
+        const originalText = renewalPayButton.textContent;
+        renewalPayButton.disabled = true;
+        renewalPayButton.textContent = "Mengirim...";
+        renewalPaymentStatus?.classList.add("hidden");
+
+        try {
+          const formData = new FormData();
+          formData.append("username", currentAccountData.username || "");
+          formData.append("email", currentAccountData.email || "");
+          formData.append("paket", selectedPlan.dataset.plan || selectedPlan.value);
+          formData.append("catatan", "Perpanjangan akun dari halaman client");
+          formData.append("bukti_pembayaran", proofFile);
+
+          const response = await fetch("/api/payment", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengirim permintaan perpanjangan.");
+          }
+
+          if (renewalProofInput) renewalProofInput.value = "";
+          setRenewalStatus("Permintaan perpanjangan berhasil dikirim. Admin akan memverifikasi bukti pembayaran Anda.", "success");
+        } catch (error) {
+          setRenewalStatus(error.message || "Gagal mengirim permintaan perpanjangan.", "error");
+        } finally {
+          renewalPayButton.disabled = false;
+          renewalPayButton.textContent = originalText || "Bayar";
+        }
+      });
+
       updateTotalFromSelection();
+      loadAccountData();
     }
 
     function initAccountPage() {
@@ -176,9 +369,55 @@
       const complaintDescriptionInput = pageContent.querySelector("#complaint-description-input");
       const complaintStatus = pageContent.querySelector("#complaint-form-status");
       const sendComplaintButton = pageContent.querySelector("[data-send-client-complaint]");
+      
+      const changePasswordOld = pageContent.querySelector("#change-password-old");
+      const changePasswordNew = pageContent.querySelector("#change-password-new");
+      const changePasswordConfirm = pageContent.querySelector("#change-password-confirm");
+      const changePasswordStatus = pageContent.querySelector("#change-password-status");
+      const changePasswordSubmit = pageContent.querySelector("#change-password-submit");
+      const complaintHistoryContainer = pageContent.querySelector("#complaint-history-container");
 
-      async function loadAccountProfile() {
+      async function loadPengaduanHistory() {
+        if (!complaintHistoryContainer) return;
+
         try {
+          const response = await fetch("/oauth/pengaduan", { credentials: "same-origin" });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengambil riwayat pengaduan");
+          }
+
+          const data = result.data || [];
+          if (data.length === 0) {
+            complaintHistoryContainer.innerHTML = '<p class="text-sm text-[#737373] text-center py-4">Belum ada pengaduan yang dikirim.</p>';
+            return;
+          }
+
+          complaintHistoryContainer.innerHTML = data.map(item => `
+            <div class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-4">
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <h3 class="font-semibold text-[#111111] text-sm">${item.judul}</h3>
+                <span class="rounded-full px-2 py-0.5 text-[11px] font-medium ${item.status === 'ditanggapi' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${item.status === 'ditanggapi' ? 'Ditanggapi' : 'Menunggu'}</span>
+              </div>
+              <p class="text-sm text-[#525252] whitespace-pre-wrap">${item.deskripsi}</p>
+              <p class="mt-2 text-[11px] text-[#737373]">${item.tanggal_dibuat}</p>
+              
+              ${item.status === 'ditanggapi' && item.jawaban ? `
+                <div class="mt-3 rounded border border-green-200 bg-green-50 p-3">
+                  <p class="text-xs font-semibold text-green-800 mb-1">Tanggapan Admin:</p>
+                  <p class="text-sm text-green-900 whitespace-pre-wrap">${item.jawaban}</p>
+                  <p class="mt-2 text-[11px] text-green-700">${item.tanggal_ditanggapi}</p>
+                </div>
+              ` : ''}
+            </div>
+          `).join('');
+        } catch (error) {
+          complaintHistoryContainer.innerHTML = `<p class="text-sm text-red-500 text-center py-4">${error.message}</p>`;
+        }
+      }
+
+      async function loadAccountProfile() {        try {
           const response = await fetch("/oauth/me", {
             credentials: "same-origin",
           });
@@ -231,7 +470,7 @@
         complaintStatus.textContent = message;
       }
 
-      sendComplaintButton?.addEventListener("click", () => {
+      sendComplaintButton?.addEventListener("click", async () => {
         const email = complaintEmailInput?.value.trim() || "";
         const title = complaintTitleInput?.value.trim() || "";
         const description = complaintDescriptionInput?.value.trim() || "";
@@ -241,9 +480,35 @@
           return;
         }
 
-        setComplaintStatus("Pengaduan berhasil dikirim ke admin.", "neutral");
-        if (complaintTitleInput) complaintTitleInput.value = "";
-        if (complaintDescriptionInput) complaintDescriptionInput.value = "";
+        const originalText = sendComplaintButton.textContent;
+        sendComplaintButton.disabled = true;
+        sendComplaintButton.textContent = "Mengirim...";
+
+        try {
+          const response = await fetch("/oauth/pengaduan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, judul: title, deskripsi: description }),
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengirim pengaduan");
+          }
+
+          setComplaintStatus("Pengaduan berhasil dikirim ke admin.", "neutral");
+          if (complaintTitleInput) complaintTitleInput.value = "";
+          if (complaintDescriptionInput) complaintDescriptionInput.value = "";
+          
+          // Refresh list
+          loadPengaduanHistory();
+        } catch (error) {
+          setComplaintStatus(error.message, "error");
+        } finally {
+          sendComplaintButton.disabled = false;
+          sendComplaintButton.textContent = originalText;
+        }
       });
 
       logoutButton?.addEventListener("click", async () => {
@@ -286,7 +551,70 @@
         }
       });
 
+      function setChangePasswordStatus(message, tone) {
+        if (!changePasswordStatus) return;
+
+        const toneClass = tone === "error"
+          ? "border-red-300 bg-red-50 text-red-700"
+          : tone === "success"
+            ? "border-green-300 bg-green-50 text-green-700"
+            : "border-[#e5e7eb] bg-[#fafafa] text-[#525252]";
+
+        changePasswordStatus.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        changePasswordStatus.textContent = message;
+      }
+
+      changePasswordSubmit?.addEventListener("click", async () => {
+        const oldPassword = changePasswordOld?.value || "";
+        const newPassword = changePasswordNew?.value || "";
+        const confirmPassword = changePasswordConfirm?.value || "";
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+          setChangePasswordStatus("Lengkapi semua kolom password.", "error");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          setChangePasswordStatus("Konfirmasi password baru tidak cocok.", "error");
+          return;
+        }
+
+        const originalText = changePasswordSubmit.textContent;
+        changePasswordSubmit.disabled = true;
+        changePasswordSubmit.textContent = "Menyimpan...";
+
+        try {
+          const response = await fetch("/oauth/change-password", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              old_password: oldPassword,
+              new_password: newPassword,
+            }),
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengubah password.");
+          }
+
+          setChangePasswordStatus("Password berhasil diubah. Email konfirmasi telah dikirim.", "success");
+          if (changePasswordOld) changePasswordOld.value = "";
+          if (changePasswordNew) changePasswordNew.value = "";
+          if (changePasswordConfirm) changePasswordConfirm.value = "";
+        } catch (error) {
+          setChangePasswordStatus(error.message, "error");
+        } finally {
+          changePasswordSubmit.disabled = false;
+          changePasswordSubmit.textContent = originalText;
+        }
+      });
+
       loadAccountProfile();
+      loadPengaduanHistory();
     }
 
     function initScrapePage() {
@@ -298,6 +626,14 @@
       const contactDetailCard = pageContent.querySelector("#saved-contact-detail-card");
       const contactDetailTitle = pageContent.querySelector("#saved-contact-detail-title");
       const contactDetailList = pageContent.querySelector("#saved-contact-detail-list");
+      const savedContactList = pageContent.querySelector("#saved-contact-list");
+      const csvFileNameInput = pageContent.querySelector("#csv-contact-file-name");
+      const csvFileInput = pageContent.querySelector("#csv-contact-file");
+      const csvStatus = pageContent.querySelector("#csv-contact-status");
+      const csvSaveButton = pageContent.querySelector("[data-save-csv-contact]");
+      const manualFileNameInput = pageContent.querySelector("#manual-contact-file-name");
+      const manualStatus = pageContent.querySelector("#manual-contact-status");
+      const manualSaveButton = pageContent.querySelector("[data-save-manual-contact]");
 
       function updateSummary() {
         const selectedGroups = Array.from(groupInputs).filter((input) => input.checked);
@@ -327,22 +663,50 @@
         });
       }
 
-      function showContactDetail(item) {
+      function setStatus(element, message, tone) {
+        if (!element) return;
+        const toneClass = tone === "error"
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-green-200 bg-green-50 text-green-700";
+        element.className = `mt-3 rounded-lg border px-3 py-2 text-sm font-medium ${toneClass}`;
+        element.textContent = message;
+        element.classList.remove("hidden");
+      }
+
+      function renderContactRows(dataTxt) {
+        return String(dataTxt || "")
+          .split(/\r?\n/)
+          .filter(Boolean)
+          .map((line) => {
+            const [phone, ...nameParts] = line.split(",");
+            return {
+              phone: phone || "-",
+              name: nameParts.join(",") || "-",
+            };
+          });
+      }
+
+      async function showContactDetail(item) {
         if (!contactDetailCard || !contactDetailTitle || !contactDetailList) return;
 
         const fileName = item.querySelector("p")?.textContent?.trim() || "contact.csv";
-        const contacts = (item.dataset.contactDetail || "")
-          .split(";")
-          .filter(Boolean)
-          .map((contact) => {
-            const [phone, name] = contact.split("|");
-            return {
-              phone: phone || "-",
-              name: name || "-",
-            };
-          });
-
         contactDetailTitle.textContent = fileName;
+        contactDetailList.innerHTML = '<p class="text-sm text-[#737373]">Memuat detail contact...</p>';
+        contactDetailCard.classList.remove("hidden");
+
+        let contacts = [];
+        try {
+          const response = await fetch(`/oauth/data-contact/${encodeURIComponent(item.dataset.contactId)}`, { credentials: "same-origin" });
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal mengambil detail contact");
+          }
+          contacts = renderContactRows(result.data?.data_txt);
+        } catch (error) {
+          contactDetailList.innerHTML = `<p class="text-sm text-red-600">${escapeText(error.message)}</p>`;
+          return;
+        }
+
         contactDetailList.innerHTML = contacts.map((contact) => `
           <div class="flex items-center justify-between gap-4 rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2">
             <div class="min-w-0">
@@ -352,7 +716,6 @@
             <span class="shrink-0 rounded border border-[#d4d4d4] bg-white px-2 py-1 text-xs font-medium text-[#525252]">Contact</span>
           </div>
         `).join("");
-        contactDetailCard.classList.remove("hidden");
       }
 
       function hideContactDetail() {
@@ -377,6 +740,54 @@
         `;
       }
 
+      function renderSavedContacts(items) {
+        if (!savedContactList) return;
+        if (!items.length) {
+          savedContactList.innerHTML = '<div class="px-4 py-6 text-center text-sm text-[#737373]">Belum ada data contact tersimpan.</div>';
+          updateSavedContactCount();
+          return;
+        }
+
+        savedContactList.innerHTML = items.map((item) => `
+          <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-id="${escapeText(item.id)}">
+            <div class="min-w-0">
+              <p class="truncate font-semibold text-[#111111]">${escapeText(item.nama_file || "contact.txt")}</p>
+              <p class="mt-1 text-xs text-[#737373] md:hidden">${escapeText(item.tanggal_dibuat || "-")}</p>
+            </div>
+            <p class="hidden text-sm text-[#525252] md:block">${escapeText(item.tanggal_dibuat || "-")}</p>
+            <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
+              <span class="text-[#737373] md:hidden">Total Contact</span>
+              <span class="font-semibold text-[#111111]">${Number(item.total_contact || 0).toLocaleString("id-ID")}</span>
+            </div>
+            <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium uppercase text-[#525252]">TXT</span>
+            <div class="flex flex-wrap gap-2 md:justify-end">
+              <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
+                Detail
+              </button>
+              <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join("");
+        updateSavedContactCount();
+      }
+
+      async function loadSavedContacts() {
+        if (!savedContactList) return;
+        try {
+          const response = await fetch("/oauth/data-contact", { credentials: "same-origin" });
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal memuat data contact");
+          }
+          renderSavedContacts(result.data || []);
+        } catch (error) {
+          savedContactList.innerHTML = `<div class="px-4 py-6 text-center text-sm text-red-600">${escapeText(error.message)}</div>`;
+          updateSavedContactCount();
+        }
+      }
+
       groupInputs.forEach((input) => {
         input.addEventListener("change", updateSummary);
       });
@@ -398,25 +809,103 @@
         });
       }
 
-      pageContent.querySelectorAll("[data-delete-saved-contact]").forEach((button) => {
-        button.addEventListener("click", () => {
-          button.closest("[data-saved-contact]")?.remove();
-          hideContactDetail();
-          updateSavedContactCount();
-        });
-      });
+      savedContactList?.addEventListener("click", async (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
 
-      pageContent.querySelectorAll("[data-show-saved-contact-detail]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const item = button.closest("[data-saved-contact]");
+        const detailButton = target.closest("[data-show-saved-contact-detail]");
+        if (detailButton) {
+          const item = detailButton.closest("[data-saved-contact]");
           if (item) showContactDetail(item);
-        });
+          return;
+        }
+
+        const deleteButton = target.closest("[data-delete-saved-contact]");
+        if (deleteButton) {
+          const item = deleteButton.closest("[data-saved-contact]");
+          const id = item?.dataset.contactId;
+          if (!id || !window.confirm("Hapus data contact ini?")) return;
+          await fetch(`/oauth/data-contact/${encodeURIComponent(id)}`, {
+            method: "DELETE",
+            credentials: "same-origin",
+          });
+          hideContactDetail();
+          loadSavedContacts();
+        }
       });
 
       pageContent.querySelector("[data-close-contact-detail]")?.addEventListener("click", hideContactDetail);
 
+      csvSaveButton?.addEventListener("click", async () => {
+        const file = csvFileInput?.files?.[0] || null;
+        if (!file) {
+          setStatus(csvStatus, "Pilih file CSV terlebih dahulu.", "error");
+          return;
+        }
+        csvSaveButton.disabled = true;
+        const originalText = csvSaveButton.textContent;
+        csvSaveButton.textContent = "Menyimpan...";
+        try {
+          const formData = new FormData();
+          formData.append("nama_file", csvFileNameInput?.value || file.name);
+          formData.append("file", file);
+          const response = await fetch("/oauth/data-contact/csv", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success) throw new Error(result.message || "Gagal menyimpan CSV");
+          if (csvFileInput) csvFileInput.value = "";
+          if (csvFileNameInput) csvFileNameInput.value = "";
+          setStatus(csvStatus, result.message || "Data contact berhasil disimpan.", "success");
+          loadSavedContacts();
+        } catch (error) {
+          setStatus(csvStatus, error.message, "error");
+        } finally {
+          csvSaveButton.disabled = false;
+          csvSaveButton.textContent = originalText;
+        }
+      });
+
+      manualSaveButton?.addEventListener("click", async () => {
+        const contacts = Array.from(pageContent.querySelectorAll("[data-manual-contact-row]")).map((row) => {
+          const inputs = row.querySelectorAll("input");
+          return {
+            phone: inputs[0]?.value.trim() || "",
+            name: inputs[1]?.value.trim() || "",
+          };
+        }).filter((contact) => contact.phone);
+
+        manualSaveButton.disabled = true;
+        const originalText = manualSaveButton.textContent;
+        manualSaveButton.textContent = "Menyimpan...";
+        try {
+          const response = await fetch("/oauth/data-contact/manual", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nama_file: manualFileNameInput?.value || "contact-manual.txt",
+              contacts,
+            }),
+            credentials: "same-origin",
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success) throw new Error(result.message || "Gagal menyimpan contact manual");
+          if (manualFileNameInput) manualFileNameInput.value = "";
+          pageContent.querySelectorAll("[data-manual-contact-row] input").forEach((input) => { input.value = ""; });
+          setStatus(manualStatus, result.message || "Data contact berhasil disimpan.", "success");
+          loadSavedContacts();
+        } catch (error) {
+          setStatus(manualStatus, error.message, "error");
+        } finally {
+          manualSaveButton.disabled = false;
+          manualSaveButton.textContent = originalText;
+        }
+      });
+
       updateSummary();
-      updateSavedContactCount();
+      loadSavedContacts();
     }
 
     function initHistoryPage() {

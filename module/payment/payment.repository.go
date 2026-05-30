@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"strings"
 	"time"
 
 	"wakirim/model"
@@ -50,7 +51,19 @@ func (r *Repository) GetPaymentByID(id string) (*model.Payment, error) {
 
 func (r *Repository) GetAllPayments() ([]model.Payment, error) {
 	var payments []model.Payment
-	err := r.db.Order("tanggal_bayar DESC").Find(&payments).Error
+	err := r.db.
+		Where("catatan NOT ILIKE ?", "%perpanjangan akun%").
+		Order("tanggal_bayar DESC").
+		Find(&payments).Error
+	return payments, err
+}
+
+func (r *Repository) GetRenewalPayments() ([]model.Payment, error) {
+	var payments []model.Payment
+	err := r.db.
+		Where("catatan ILIKE ?", "%perpanjangan akun%").
+		Order("tanggal_bayar DESC").
+		Find(&payments).Error
 	return payments, err
 }
 
@@ -62,8 +75,17 @@ func (r *Repository) GetPaymentsByStatus(status string) ([]model.Payment, error)
 
 func (r *Repository) GetPendingPaymentsCount() (int64, error) {
 	var count int64
-	err := r.db.Model(&model.Payment{}).Where("status = ?", "pending").Count(&count).Error
+	err := r.db.Model(&model.Payment{}).
+		Where("status = ? AND catatan NOT ILIKE ?", "pending", "%perpanjangan akun%").
+		Count(&count).Error
 	return count, err
+}
+
+func isRenewalPayment(payment *model.Payment) bool {
+	if payment == nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(payment.Catatan), "perpanjangan akun")
 }
 
 func (r *Repository) UpdatePayment(payment *model.Payment) error {
@@ -76,7 +98,7 @@ func (r *Repository) UpdatePaymentStatus(id string, status string) error {
 
 func (r *Repository) DeletePaymentWithLinkedAkun(payment *model.Payment) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if payment.Status == "verified" || payment.Status == "terverifikasi" {
+		if !isRenewalPayment(payment) && (payment.Status == "verified" || payment.Status == "terverifikasi") {
 			if err := tx.Where("email = ? OR username = ?", payment.Email, payment.Username).Delete(&model.Akun{}).Error; err != nil {
 				return err
 			}

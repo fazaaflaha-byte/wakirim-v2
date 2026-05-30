@@ -80,13 +80,43 @@ func (s *Service) DeleteAccountByUUID(uuid string) error {
 }
 
 func (s *Service) BuildUserResponse(akun *model.Akun) OAuthUserResponse {
+	tanggalDaftar := ""
+	if akun.TanggalDaftar.Year() > 1 {
+		tanggalDaftar = akun.TanggalDaftar.Format("2006-01-02")
+	}
+	tanggalBerakhir := ""
+	if akun.TanggalBerakhir.Year() > 1 {
+		tanggalBerakhir = akun.TanggalBerakhir.Format("2006-01-02")
+	}
+
 	return OAuthUserResponse{
 		UUID:            akun.UUID,
 		Username:        akun.Username,
 		Email:           akun.Email,
 		Status:          akun.Status,
-		TanggalDaftar:   akun.TanggalDaftar.Format("02 Jan 2006"),
-		TanggalBerakhir: akun.TanggalBerakhir.Format("02 Jan 2006"),
+		TanggalDaftar:   tanggalDaftar,
+		TanggalBerakhir: tanggalBerakhir,
+	}
+}
+
+func (s *Service) BuildUserResponseWithPaket(userData *AkunWithPaket) OAuthUserResponse {
+	tanggalDaftar := ""
+	if userData.TanggalDaftar.Year() > 1 {
+		tanggalDaftar = userData.TanggalDaftar.Format("2006-01-02")
+	}
+	tanggalBerakhir := ""
+	if userData.TanggalBerakhir.Year() > 1 {
+		tanggalBerakhir = userData.TanggalBerakhir.Format("2006-01-02")
+	}
+
+	return OAuthUserResponse{
+		UUID:            userData.UUID,
+		Username:        userData.Username,
+		Email:           userData.Email,
+		Status:          userData.Status,
+		TanggalDaftar:   tanggalDaftar,
+		TanggalBerakhir: tanggalBerakhir,
+		Paket:           userData.Paket,
 	}
 }
 
@@ -244,4 +274,34 @@ func CookieMaxAgeSeconds() int {
 
 func BuildOAuthGrantError() error {
 	return fmt.Errorf("grant_type tidak didukung, gunakan password")
+}
+
+func (s *Service) ChangePassword(uuid string, oldPassword string, newPassword string) error {
+	akun, err := s.repo.GetAkunByUUID(uuid)
+	if err != nil {
+		return errors.New("akun tidak ditemukan")
+	}
+
+	if akun.Password == nil || strings.TrimSpace(*akun.Password) == "" {
+		return errors.New("akun belum memiliki password")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(*akun.Password), []byte(oldPassword)); err != nil {
+		return errors.New("password lama salah")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.New("gagal membuat password baru")
+	}
+
+	if err := s.repo.UpdateAkunPassword(akun.UUID, string(hashedPassword)); err != nil {
+		return errors.New("gagal mengupdate password")
+	}
+
+	if err := s.sendPasswordResetEmail(akun.Email, newPassword); err != nil {
+		return errors.New("password berhasil diganti, tetapi email gagal dikirim: " + err.Error())
+	}
+
+	return nil
 }

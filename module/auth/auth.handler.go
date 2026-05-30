@@ -38,6 +38,7 @@ func (h *Handler) RegisterRoutes(router *gin.Engine, tokenMiddlewares ...gin.Han
 		oauth.GET("/me", h.Me)
 		oauth.POST("/logout", h.Logout)
 		oauth.POST("/delete-account", h.DeleteAccount)
+		oauth.POST("/change-password", h.ChangePassword)
 	}
 }
 
@@ -128,9 +129,18 @@ func (h *Handler) Me(c *gin.Context) {
 		return
 	}
 
+	userData, err := h.service.repo.GetAkunWithPaketByUUID(akun.UUID)
+	if err != nil {
+		c.JSON(http.StatusOK, ApiResponse{
+			Success: true,
+			Data:    h.service.BuildUserResponse(akun),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, ApiResponse{
 		Success: true,
-		Data:    h.service.BuildUserResponse(akun),
+		Data:    h.service.BuildUserResponseWithPaket(userData),
 	})
 }
 
@@ -164,6 +174,55 @@ func (h *Handler) DeleteAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, ApiResponse{
 		Success: true,
 		Message: "Akun berhasil dihapus",
+	})
+}
+
+func (h *Handler) ChangePassword(c *gin.Context) {
+	akun, _, err := h.currentUserFromRequest(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, ApiResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	var req ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ApiResponse{
+			Success: false,
+			Message: "Data tidak valid",
+		})
+		return
+	}
+
+	if req.OldPassword == "" || req.NewPassword == "" {
+		c.JSON(http.StatusBadRequest, ApiResponse{
+			Success: false,
+			Message: "Password lama dan password baru wajib diisi",
+		})
+		return
+	}
+
+	if req.OldPassword == req.NewPassword {
+		c.JSON(http.StatusBadRequest, ApiResponse{
+			Success: false,
+			Message: "Password baru tidak boleh sama dengan password lama",
+		})
+		return
+	}
+
+	if err := h.service.ChangePassword(akun.UUID, req.OldPassword, req.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, ApiResponse{
+			Success: false,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, ApiResponse{
+		Success: true,
+		Message: "Password berhasil diubah",
 	})
 }
 

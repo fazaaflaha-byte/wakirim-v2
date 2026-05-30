@@ -79,9 +79,9 @@ func (h *Handler) GetPakets(c *gin.Context) {
 		c.JSON(http.StatusOK, ApiResponse{
 			Success: true,
 			Data: []PaketResponse{
-				{ID: "starter", Nama: "Starter", Harga: 60000, DurasiBulan: 1},
-				{ID: "growth", Nama: "Growth", Harga: 130000, DurasiBulan: 2},
-				{ID: "best-value", Nama: "Best Value", Harga: 299000, DurasiBulan: 6},
+				{ID: "starter", Nama: "Starter", Harga: 59000, DurasiBulan: 1},
+				{ID: "growth", Nama: "Growth", Harga: 149000, DurasiBulan: 3},
+				{ID: "best-value", Nama: "Best Value", Harga: 295000, DurasiBulan: 12},
 			},
 		})
 		return
@@ -192,7 +192,13 @@ func (h *Handler) GetAllPayments(c *gin.Context) {
 		return
 	}
 
-	payments, err := svc.GetAllPayments()
+	var payments []PaymentResponse
+	paymentType := c.Query("type")
+	if paymentType == "renewal" || paymentType == "upgrade" {
+		payments, err = svc.GetRenewalPayments()
+	} else {
+		payments, err = svc.GetAllPayments()
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ApiResponse{
 			Success: false,
@@ -258,7 +264,7 @@ func (h *Handler) VerifyPayment(c *gin.Context) {
 
 	var req struct {
 		PaymentID   string `json:"payment_id" binding:"required"`
-		AccountPass string `json:"account_password" binding:"required"`
+		AccountPass string `json:"account_password"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -289,7 +295,7 @@ func (h *Handler) VerifyPayment(c *gin.Context) {
 
 	c.JSON(http.StatusOK, ApiResponse{
 		Success: true,
-		Message: "Pembayaran berhasil diverifikasi dan akun telah dibuat",
+		Message: "Pembayaran berhasil diverifikasi",
 	})
 }
 

@@ -128,14 +128,15 @@
       <div class="space-y-2">
         <label class="block">
           <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama file contact</span>
-          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: leads-baru.csv">
+      <input id="csv-contact-file-name" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: leads-baru.txt">
         </label>
         <label class="block">
           <span class="mb-1.5 block text-sm font-medium text-[#525252]">File CSV</span>
-          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] file:mr-3 file:rounded-md file:border-0 file:bg-[#111111] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="file" accept=".csv">
+          <input id="csv-contact-file" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] file:mr-3 file:rounded-md file:border-0 file:bg-[#111111] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="file" accept=".csv,text/csv">
         </label>
       </div>
-      <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">
+      <p id="csv-contact-status" class="mt-3 hidden rounded-lg border px-3 py-2 text-sm font-medium"></p>
+      <button data-save-csv-contact class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-60" type="button">
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
         </svg>
@@ -151,7 +152,7 @@
       <div class="space-y-3">
         <label class="block">
           <span class="mb-1.5 block text-sm font-medium text-[#525252]">Nama file contact</span>
-          <input class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: contact-manual.csv">
+          <input id="manual-contact-file-name" class="w-full rounded-lg border border-[#d4d4d4] bg-white px-3 py-2.5 text-sm text-[#111111] placeholder:text-[#a3a3a3] focus:border-[#111111] focus:outline-none focus:ring-1 focus:ring-[#111111]" type="text" placeholder="contoh: contact-manual.txt">
         </label>
         <div id="manual-contact-rows" class="space-y-3">
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px]" data-manual-contact-row>
@@ -169,7 +170,8 @@
           </div>
         </div>
       </div>
-      <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b]" type="button">
+      <p id="manual-contact-status" class="mt-3 hidden rounded-lg border px-3 py-2 text-sm font-medium"></p>
+      <button data-save-manual-contact class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#111111] px-4 py-3 font-semibold text-white transition-colors hover:bg-[#2b2b2b] disabled:cursor-not-allowed disabled:opacity-60" type="button">
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
         </svg>
@@ -210,69 +212,8 @@
       <span class="whitespace-nowrap text-right">Aksi</span>
     </div>
 
-    <div id="saved-contact-list" class="divide-y divide-[#e5e7eb]">
-      <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-detail="6281234567890|Andi Reseller;6289876543210|Sinta Admin;6287778889999|Budi">
-        <div class="min-w-0">
-          <p class="truncate font-semibold text-[#111111]">reseller-premium.csv</p>
-          <p class="mt-1 text-xs text-[#737373] md:hidden">21 Mei 2026, 21:10 WIB</p>
-        </div>
-        <p class="hidden text-sm text-[#525252] md:block">21 Mei 2026, 21:10 WIB</p>
-        <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
-          <span class="text-[#737373] md:hidden">Total Contact</span>
-          <span class="font-semibold text-[#111111]">1,248</span>
-        </div>
-        <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium text-[#525252]">CSV</span>
-        <div class="flex flex-wrap gap-2 md:justify-end">
-          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
-            Detail
-          </button>
-          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
-            Delete
-          </button>
-        </div>
-      </div>
-
-      <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-detail="6285551234567|Raka;6285557654321|Maya;6285558880001|">
-        <div class="min-w-0">
-          <p class="truncate font-semibold text-[#111111]">contact-manual.csv</p>
-          <p class="mt-1 text-xs text-[#737373] md:hidden">21 Mei 2026, 19:35 WIB</p>
-        </div>
-        <p class="hidden text-sm text-[#525252] md:block">21 Mei 2026, 19:35 WIB</p>
-        <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
-          <span class="text-[#737373] md:hidden">Total Contact</span>
-          <span class="font-semibold text-[#111111]">86</span>
-        </div>
-        <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium text-[#525252]">CSV</span>
-        <div class="flex flex-wrap gap-2 md:justify-end">
-          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
-            Detail
-          </button>
-          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
-            Delete
-          </button>
-        </div>
-      </div>
-
-      <div class="grid gap-3 px-4 py-4 md:grid-cols-[minmax(220px,1.4fr)_200px_140px_100px_160px] md:items-center" data-saved-contact data-contact-detail="6281112223334|Dian;6282223334445|Fajar;6283334445556|Nadia">
-        <div class="min-w-0">
-          <p class="truncate font-semibold text-[#111111]">leads-baru.csv</p>
-          <p class="mt-1 text-xs text-[#737373] md:hidden">20 Mei 2026, 16:12 WIB</p>
-        </div>
-        <p class="hidden text-sm text-[#525252] md:block">20 Mei 2026, 16:12 WIB</p>
-        <div class="flex items-center justify-between rounded-lg bg-[#fafafa] px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0">
-          <span class="text-[#737373] md:hidden">Total Contact</span>
-          <span class="font-semibold text-[#111111]">531</span>
-        </div>
-        <span class="w-fit rounded border border-[#d4d4d4] bg-[#fafafa] px-2 py-1 text-xs font-medium text-[#525252]">CSV</span>
-        <div class="flex flex-wrap gap-2 md:justify-end">
-          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-show-saved-contact-detail>
-            Detail
-          </button>
-          <button class="inline-flex items-center justify-center rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-sm font-semibold text-[#111111] transition-colors hover:border-[#111111] hover:bg-[#111111] hover:text-white" type="button" data-delete-saved-contact>
-            Delete
-          </button>
-        </div>
-      </div>
+  <div id="saved-contact-list" class="divide-y divide-[#e5e7eb]">
+      <div class="px-4 py-6 text-center text-sm text-[#737373]">Memuat data contact...</div>
     </div>
   </div>
 </section>

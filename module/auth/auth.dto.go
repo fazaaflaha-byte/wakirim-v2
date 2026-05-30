@@ -13,6 +13,7 @@ type OAuthUserResponse struct {
 	Status          string `json:"status"`
 	TanggalDaftar   string `json:"tanggal_daftar"`
 	TanggalBerakhir string `json:"tanggal_berakhir"`
+	Paket           string `json:"paket,omitempty"`
 }
 
 type OAuthTokenResponse struct {
@@ -26,4 +27,9 @@ type ApiResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
 }

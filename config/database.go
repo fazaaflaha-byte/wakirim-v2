@@ -50,6 +50,8 @@ func RunMigration() error {
 		&model.Akun{},
 		&model.Payment{},
 		&model.Paket{},
+		&model.Pengaduan{},
+		&model.DataContact{},
 	)
 	if err != nil {
 		return err
@@ -67,9 +69,9 @@ func RunMigration() error {
 
 func SeedPakets() error {
 	pakets := []model.Paket{
-		{ID: "starter", Nama: "Starter", Harga: 60000, DurasiBulan: 1, Aktif: true},
-		{ID: "growth", Nama: "Growth", Harga: 130000, DurasiBulan: 2, Aktif: true},
-		{ID: "best-value", Nama: "Best Value", Harga: 299000, DurasiBulan: 6, Aktif: true},
+		{ID: "starter", Nama: "Starter", Harga: 59000, DurasiBulan: 1, Aktif: true},
+		{ID: "growth", Nama: "Growth", Harga: 149000, DurasiBulan: 3, Aktif: true},
+		{ID: "best-value", Nama: "Best Value", Harga: 295000, DurasiBulan: 12, Aktif: true},
 	}
 
 	for _, p := range pakets {
